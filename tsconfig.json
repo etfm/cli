@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    // "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "esnext",
+    "allowJs": true,
+    "noUnusedLocals": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@etfm/*": ["./packages/*/src"]
+    }
+  }
+}
