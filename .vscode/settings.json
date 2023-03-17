@@ -1,4 +1,9 @@
 {
+  //配置保存时按照eslint文件的规则来处理一下代码
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "eslint.autoFixOnSave": true
+  },
   //设置Prettier
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

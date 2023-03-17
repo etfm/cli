@@ -1,1 +1,3 @@
-export const aa = () => {}
+export const aa = () => {
+  console.log(123)
+}
