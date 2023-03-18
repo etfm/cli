@@ -70,7 +70,7 @@ module.exports = {
     allowEmptyIssuePrefixs: false,
     allowCustomIssuePrefixs: false,
 
-    // English
+    // English1
     typesAppend: [
       { value: 'wip', name: 'wip:      work in process' },
       { value: 'workflow', name: 'workflow: workflow improvements' },
