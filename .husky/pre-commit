@@ -6,5 +6,5 @@
 
 PATH="/usr/local/bin:$PATH"
 
-# Format and submit code according to lintstagedrc.js configuration
+# Format and submit code according to lintstagedrc.js configuration 1
 npm run lint:lint-staged
