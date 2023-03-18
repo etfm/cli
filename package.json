@@ -10,18 +10,17 @@
     "test:ui": "vitest --ui",
     "prepare": "is-ci || husky install",
     "lint:lint-staged": "lint-staged -c ./lintstagedrc.json",
-    "commit": "cz"
+    "commit": "czg"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@commitlint/config-lerna-scopes": "^17.4.2",
-    "@commitlint/types": "^17.4.4",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
     "@vitest/coverage-c8": "^0.29.3",
     "@vitest/ui": "^0.29.3",
-    "commitizen": "^4.3.0",
+    "czg": "^1.6.0",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-prettier": "^4.2.1",
