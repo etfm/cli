@@ -1,7 +1,7 @@
 import type { UserConfig } from '@commitlint/types'
 import { RuleConfigSeverity } from '@commitlint/types'
 
-const Configuration: UserConfig = {
+export const Configuration: UserConfig = {
   /*
    * Resolve and load @commitlint/config-conventional from node_modules.
    * Referenced packages must be installed
@@ -68,14 +68,14 @@ const Configuration: UserConfig = {
   /*
    * Custom prompt configs
    */
-  // prompt: {
-  //   messages: {},
-  //   questions: {
-  //     type: {
-  //       description: 'please input type:',
-  //     },
-  //   },
-  // },
+  prompt: {
+    messages: {},
+    questions: {
+      type: {
+        description: 'please input type:',
+      },
+    },
+  },
 }
 
 export default Configuration
