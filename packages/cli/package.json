@@ -9,6 +9,7 @@
     "etfm": "lib/cli.js"
   },
   "directories": {
+    "dist": "dist",
     "lib": "lib",
     "test": "__tests__"
   },
@@ -21,10 +22,13 @@
     "url": "git+https://github.com/etfm/cli.git"
   },
   "scripts": {
+    "bootstrap": "pnpm install",
     "dev": "father dev",
     "build": "father build",
     "build:deps": "father prebundle",
-    "prepublishOnly": "father doctor && npm run build"
+    "prepublishOnly": "father doctor && npm run build",
+    "clean": "rimraf node_modules",
+    "reinstall": "pnpm clean && pnpm bootstrap"
   },
   "bugs": {
     "url": "https://github.com/etfm/cli/issues"

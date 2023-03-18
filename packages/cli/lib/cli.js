@@ -1,3 +1,3 @@
 #! /usr/bin/env node
 
-require('../dist/src/commands/index')
+import '../dist/esm/index'
