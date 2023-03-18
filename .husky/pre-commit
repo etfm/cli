@@ -1,7 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 . "$(dirname "$0")/common.sh"
-. "$(dirname "$0")/commit-msg"
 
 [ -n "$CI" ] && exit 0
 
