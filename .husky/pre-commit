@@ -6,7 +6,7 @@
 
 PATH="/usr/local/bin:$PATH"
 
-# chmod +x .husky/pre-commit
+chmod +x .husky/pre-commit
 
 # Format and submit code according to lintstagedrc.js configuration
 npm run lint:lint-staged
