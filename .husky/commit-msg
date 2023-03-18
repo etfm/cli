@@ -5,6 +5,6 @@
 
 PATH="/usr/local/bin:$PATH"
 
-exec < /dev/tty && npx czg --hook || true
+chmod +x .husky/pre-commit
 
-# npx --no-install commitlint --edit "$1"
+exec < /dev/tty && npx czg --hook || true
