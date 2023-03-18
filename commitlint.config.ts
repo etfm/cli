@@ -78,4 +78,4 @@ export const Configuration: UserConfig = {
   // },
 }
 
-export default Configuration
+module.exports = Configuration
