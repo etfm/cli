@@ -1,7 +1,5 @@
-import { execSync } from 'child_process'
-import fg from 'fast-glob'
-
-console.log('-------')
+const { execSync } = require('child_process')
+const fg = require('fast-glob')
 
 const getPackages = (packagePath) =>
   fg.sync('*', { cwd: packagePath, onlyDirectories: true })
@@ -73,7 +71,6 @@ module.exports = {
     'type-empty': [2, 'never'],
     /**
      * type[scope]: [function] description
-     * ^^^^
      */
     'type-enum': [
       2,
@@ -98,25 +95,27 @@ module.exports = {
   prompt: {
     alias: { fd: 'docs: fix typos' },
     messages: {
-      type: "Select the type of change that you're committing:",
-      scope: 'Denote the SCOPE of this change (optional):',
-      customScope: 'Denote the SCOPE of this change:',
-      subject: 'Write a SHORT, IMPERATIVE tense description of the change:\n',
-      body: 'Provide a LONGER description of the change (optional). Use "|" to break new line:\n',
+      type: '选择你要提交的类型 | Select the type of change that you committing:',
+      scope:
+        '选择一个提交范围（可选）| Denote the SCOPE of this change (optional):',
+      customScope: '请输入自定义的提交范围 | Denote the SCOPE of this change:',
+      subject:
+        '填写简短精炼的变更描述 | Write a SHORT, IMPERATIVE tense description of the change:',
+      body: '填写更加详细的变更描述（可选）。使用 "|" 换行 | Provide a LONGER description of the change (optional). Use "|" to break new line:',
       breaking:
-        'List any BREAKING CHANGES (optional). Use "|" to break new line:\n',
+        '列举非兼容性重大的变更（可选）。使用 "|" 换行 | List any BREAKING CHANGES (optional). Use "|" to break new line:',
       footerPrefixesSelect:
-        'Select the ISSUES type of changeList by this change (optional):',
-      customFooterPrefix: 'Input ISSUES prefix:',
-      footer: 'List any ISSUES by this change. E.g.: #31, #34:\n',
-      generatingByAI: 'Generating your AI commit subject...',
-      generatedSelectByAI: 'Select suitable subject by AI generated:',
-      confirmCommit: 'Are you sure you want to proceed with the commit above?',
+        '选择关联issue前缀（可选）| Select the ISSUES type of changeList by this change (optional):',
+      customFooterPrefix: '输入自定义issue前缀 | Input ISSUES prefix:',
+      footer:
+        '列举关联issue (可选) 例如: #31, #I3244 | List any ISSUES by this change. E.g.: #31, #I3244:',
+      confirmCommit:
+        '是否提交或修改commit? | Are you sure you want to proceed with the commit above?',
     },
     types: [
       {
         value: 'feat',
-        name: 'feat:     A new feature1212',
+        name: 'feat:     A new feature',
         emoji: ':sparkles:',
       },
       { value: 'fix', name: 'fix:      A bug fix', emoji: ':bug:' },
