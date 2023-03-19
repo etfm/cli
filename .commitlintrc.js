@@ -2,7 +2,7 @@
 module.exports = {
   extends: ['@commitlint/config-lerna-scopes'],
   rules: {
-    // @see: https://commitlint.js.org/#/reference-rules
+    // @see: https://commitlint.js.org/#/reference-rules 1
   },
   prompt: {
     alias: { fd: 'docs: fix typos' },
