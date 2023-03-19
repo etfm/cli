@@ -34,30 +34,9 @@ const subjectEnum = gitStatus
 module.exports = {
   rules: {
     // @see: https://commitlint.js.org/#/reference-rules
-    /**
-     * type[scope]: [function] description
-     *      ^^^^^
-     */
     'scope-enum': [2, 'always', scopes],
-    /**
-     * type[scope]: [function] description
-     *
-     * ^^^^^^^^^^^^^^ empty line.
-     * - Something here
-     */
     'body-leading-blank': [1, 'always'],
-    /**
-     * type[scope]: [function] description
-     *
-     * - something here
-     *
-     * ^^^^^^^^^^^^^^
-     */
     'footer-leading-blank': [1, 'always'],
-    /**
-     * type[scope]: [function] description [No more than 72 characters]
-     *      ^^^^^
-     */
     'header-max-length': [2, 'always', 72],
     'scope-case': [2, 'always', 'lower-case'],
     'subject-case': [
@@ -69,13 +48,11 @@ module.exports = {
     'subject-full-stop': [2, 'never', '.'],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
-    /**
-     * type[scope]: [function] description
-     */
     'type-enum': [
       2,
       'always',
       [
+        'init',
         'build',
         'chore',
         'ci',
@@ -88,81 +65,96 @@ module.exports = {
         'release',
         'style',
         'test',
-        'improvement',
+        'config',
       ],
     ],
   },
   prompt: {
     alias: { fd: 'docs: fix typos' },
     messages: {
-      type: '选择你要提交的类型 | Select the type of change that you committing:',
+      type: '选择你要提交的类型 | Select the type of change that you committing:\n',
       scope:
-        '选择一个提交范围（可选）| Denote the SCOPE of this change (optional):',
-      customScope: '请输入自定义的提交范围 | Denote the SCOPE of this change:',
+        '选择一个提交范围（可选）| Denote the SCOPE of this change (optional):\n',
+      customScope:
+        '请输入自定义的提交范围 | Denote the SCOPE of this change:\n',
       subject:
-        '填写简短精炼的变更描述 | Write a SHORT, IMPERATIVE tense description of the change:',
-      body: '填写更加详细的变更描述（可选）。使用 "|" 换行 | Provide a LONGER description of the change (optional). Use "|" to break new line:',
+        '填写简短精炼的变更描述 | Write a SHORT, IMPERATIVE tense description of the change:\n',
+      body: '填写更加详细的变更描述（可选）。使用 "|" 换行 | Provide a LONGER description of the change (optional). Use "|" to break new line:\n',
       breaking:
-        '列举非兼容性重大的变更（可选）。使用 "|" 换行 | List any BREAKING CHANGES (optional). Use "|" to break new line:',
+        '列举非兼容性重大的变更（可选）。使用 "|" 换行 | List any BREAKING CHANGES (optional). Use "|" to break new line:\n',
       footerPrefixesSelect:
-        '选择关联issue前缀（可选）| Select the ISSUES type of changeList by this change (optional):',
-      customFooterPrefix: '输入自定义issue前缀 | Input ISSUES prefix:',
+        '选择关联issue前缀（可选）| Select the ISSUES type of changeList by this change (optional):\n',
+      customFooterPrefix: '输入自定义issue前缀 | Input ISSUES prefix:\n',
       footer:
-        '列举关联issue (可选) 例如: #31, #I3244 | List any ISSUES by this change. E.g.: #31, #I3244:',
+        '列举关联issue (可选) 例如: #31, #I3244 | List any ISSUES by this change. E.g.: #31, #I3244:\n',
       confirmCommit:
-        '是否提交或修改commit? | Are you sure you want to proceed with the commit above?',
+        '是否提交或修改commit? | Are you sure you want to proceed with the commit above?\n',
     },
     types: [
       {
+        value: 'init',
+        name: 'init:     🎉 初次提交 | Initial Submission',
+        emoji: ':tada:',
+      },
+      {
         value: 'feat',
-        name: 'feat:     A new feature',
+        name: 'feat:     ✨ 新增功能 | A new feature',
         emoji: ':sparkles:',
       },
-      { value: 'fix', name: 'fix:      A bug fix', emoji: ':bug:' },
+      {
+        value: 'fix',
+        name: 'fix:      🐛 修复缺陷 | A bug fix',
+        emoji: ':bug:',
+      },
       {
         value: 'docs',
-        name: 'docs:     Documentation only changes',
+        name: 'docs:     📝 文档更新 | Documentation only changes',
         emoji: ':memo:',
       },
       {
         value: 'style',
-        name: 'style:    Changes that do not affect the meaning of the code',
+        name: 'style:    💄 代码格式 | Changes that do not affect the meaning of the code',
         emoji: ':lipstick:',
       },
       {
         value: 'refactor',
-        name: 'refactor: A code change that neither fixes a bug nor adds a feature',
+        name: 'refactor: ♻️ 代码重构 | A code change that neither fixes a bug nor adds a feature',
         emoji: ':recycle:',
       },
       {
         value: 'perf',
-        name: 'perf:     A code change that improves performance',
-        emoji: ':zap:',
+        name: 'perf:     🐎 性能提升 | A code change that improves performance',
+        emoji: ':racehorse:',
       },
       {
         value: 'test',
-        name: 'test:     Adding missing tests or correcting existing tests',
+        name: 'test:     ✅ 测试相关 | Adding missing tests or correcting existing tests',
         emoji: ':white_check_mark:',
       },
       {
         value: 'build',
-        name: 'build:    Changes that affect the build system or external dependencies',
+        name: 'build:    📦️ 构建相关 | Changes that affect the build system or external dependencies',
         emoji: ':package:',
       },
       {
         value: 'ci',
-        name: 'ci:       Changes to our CI configuration files and scripts',
+        name: 'ci:       🎡 持续集成 | Changes to our CI configuration files and scripts',
         emoji: ':ferris_wheel:',
       },
       {
-        value: 'chore',
-        name: "chore:    Other changes that don't modify src or test files",
-        emoji: ':hammer:',
+        value: 'config',
+        name: 'config:   🔧 配置文件 | Change our configuration files and scripts',
+        emoji: ':wrench:',
       },
       {
         value: 'revert',
-        name: 'revert:   Reverts a previous commit',
+        name: 'revert:   ⏪️ 回退代码 | Revert to a commit',
         emoji: ':rewind:',
+      },
+      {
+        value: 'chore',
+        name: 'chore:    🔨 其他修改 | Other changes that do not modify src or test files',
+        emoji: ':hammer:',
       },
     ],
     defaultScope: scopeEnum,
