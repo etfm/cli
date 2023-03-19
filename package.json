@@ -13,7 +13,6 @@
     "commit": "czg"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@commitlint/config-lerna-scopes": "^17.4.2",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
