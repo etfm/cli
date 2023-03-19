@@ -9,8 +9,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "prepare": "is-ci || husky install",
-    "lint:lint-staged": "lint-staged -c ./lintstagedrc.json",
-    "commit": "czg"
+    "lint:lint-staged": "lint-staged -c ./lintstagedrc.json"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.55.0",
