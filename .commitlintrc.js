@@ -15,7 +15,7 @@ const scopes = [
   'other',
 ]
 
-console.log(scopes)
+console.log(scopes, '-------')
 
 const gitStatus = execSync('git status --porcelain || true')
   .toString()
