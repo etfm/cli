@@ -1,5 +1,6 @@
 /** @type {import('cz-git').UserConfig} */
 module.exports = {
+  extends: ['@commitlint/config-lerna-scopes'],
   rules: {
     // @see: https://commitlint.js.org/#/reference-rules
   },
