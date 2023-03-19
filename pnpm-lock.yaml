@@ -4,8 +4,6 @@ importers:
 
   .:
     specifiers:
-      '@commitlint/config-conventional': ^17.4.4
-      '@commitlint/config-lerna-scopes': ^17.4.2
       '@typescript-eslint/eslint-plugin': ^5.55.0
       '@typescript-eslint/parser': ^5.55.0
       '@vitest/coverage-c8': ^0.29.3
@@ -15,6 +13,7 @@ importers:
       eslint: ^8.36.0
       eslint-config-prettier: ^8.7.0
       eslint-plugin-prettier: ^4.2.1
+      fast-glob: ^3.2.12
       father: ^4.1.7
       husky: ^8.0.0
       is-ci: ^3.0.1
@@ -25,8 +24,6 @@ importers:
       typescript: ^4.9.5
       vitest: ^0.29.3
     devDependencies:
-      '@commitlint/config-conventional': 17.4.4
-      '@commitlint/config-lerna-scopes': 17.4.2_lerna@6.5.1
       '@typescript-eslint/eslint-plugin': 5.55.0_342y7v4tc7ytrrysmit6jo4wri
       '@typescript-eslint/parser': 5.55.0_vgl77cfdswitgr47lm5swmv43m
       '@vitest/coverage-c8': 0.29.3_vitest@0.29.3
@@ -36,6 +33,7 @@ importers:
       eslint: 8.36.0
       eslint-config-prettier: 8.7.0_eslint@8.36.0
       eslint-plugin-prettier: 4.2.1_eqzx3hpkgx5nnvxls3azrcc7dm
+      fast-glob: 3.2.12
       father: 4.1.7
       husky: 8.0.3
       is-ci: 3.0.1
@@ -274,29 +272,6 @@ packages:
 
   /@bloomberg/record-tuple-polyfill/0.0.4:
     resolution: {integrity: sha512-h0OYmPR3A5Dfbetra/GzxBAzQk8sH7LhRkRUTdagX6nrtlUgJGYCTv4bBK33jsTQw9HDd8PE2x1Ma+iRKEDUsw==}
-    dev: true
-
-  /@commitlint/config-conventional/17.4.4:
-    resolution: {integrity: sha512-u6ztvxqzi6NuhrcEDR7a+z0yrh11elY66nRrQIpqsqW6sZmpxYkDLtpRH8jRML+mmxYQ8s4qqF06Q/IQx5aJeQ==}
-    engines: {node: '>=v14'}
-    dependencies:
-      conventional-changelog-conventionalcommits: 5.0.0
-    dev: true
-
-  /@commitlint/config-lerna-scopes/17.4.2_lerna@6.5.1:
-    resolution: {integrity: sha512-uqunHW7LWBkjEflRAxmzlNu4l3n6Yh/W4EN7eUs404dNj8jhX/K05/ZcFq9i7KzadVp70MUIpZEXfWBTqR9Jyg==}
-    engines: {node: '>=v14'}
-    peerDependencies:
-      lerna: ^5.0.0 || ^6
-    peerDependenciesMeta:
-      lerna:
-        optional: true
-    dependencies:
-      glob: 8.1.0
-      import-from: 4.0.0
-      lerna: 6.5.1
-      resolve-pkg: 2.0.0
-      semver: 7.3.8
     dev: true
 
   /@csstools/postcss-color-function/1.1.1_postcss@8.4.21:
@@ -2951,15 +2926,6 @@ packages:
       q: 1.5.1
     dev: true
 
-  /conventional-changelog-conventionalcommits/5.0.0:
-    resolution: {integrity: sha512-lCDbA+ZqVFQGUj7h9QBKoIpLhl8iihkO0nCTyRNzuXtcd7ubODpYB04IFy31JloiJgG0Uovu8ot8oxRzn7Nwtw==}
-    engines: {node: '>=10'}
-    dependencies:
-      compare-func: 2.0.0
-      lodash: 4.17.21
-      q: 1.5.1
-    dev: true
-
   /conventional-changelog-core/4.2.4:
     resolution: {integrity: sha512-gDVS+zVJHE2v4SLc6B0sLsPiloR0ygU7HaDW14aNJE1v4SlqJPILPl/aJC7YdtRE4CybBf8gDwObBvKha8Xlyg==}
     engines: {node: '>=10'}
@@ -4679,11 +4645,6 @@ packages:
     dependencies:
       parent-module: 1.0.1
       resolve-from: 4.0.0
-    dev: true
-
-  /import-from/4.0.0:
-    resolution: {integrity: sha512-P9J71vT5nLlDeV8FHs5nNxaLbrpfAV5cF5srvbZfpwpcJoM/xZR3hiv+q+SAnuSmuGbXMWud063iIMx/V/EWZQ==}
-    engines: {node: '>=12.2'}
     dev: true
 
   /import-lazy/4.0.0:
@@ -7521,13 +7482,6 @@ packages:
   /resolve-from/5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
-    dev: true
-
-  /resolve-pkg/2.0.0:
-    resolution: {integrity: sha512-+1lzwXehGCXSeryaISr6WujZzowloigEofRB+dj75y9RRa/obVcYgbHJd53tdYw8pvZj8GojXaaENws8Ktw/hQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      resolve-from: 5.0.0
     dev: true
 
   /resolve/1.17.0:

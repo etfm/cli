@@ -1,8 +1,99 @@
+import { execSync } from 'child_process'
+import fg from 'fast-glob'
+
+const getPackages = (packagePath) =>
+  fg.sync('*', { cwd: packagePath, onlyDirectories: true })
+
+const scopes = [
+  ...getPackages('packages'),
+  'docs',
+  'project',
+  'core',
+  'ci',
+  'dev',
+  'deploy',
+  'other',
+]
+
+console.log(scopes)
+
+const gitStatus = execSync('git status --porcelain || true')
+  .toString()
+  .trim()
+  .split('\n')
+
+const scopeEnum = gitStatus
+  .find((r) => ~r.indexOf('M  packages'))
+  ?.replace(/\//g, '%%')
+  ?.match(/packages%%((\w|-)*)/)?.[1]
+
+const subjectEnum = gitStatus
+  .find((r) => ~r.indexOf('M  packages'))
+  ?.replace(/\//g, '%%')
+  ?.match(/packages%%((\w|-)*)/)?.[1]
+
 /** @type {import('cz-git').UserConfig} */
 module.exports = {
-  extends: ['@commitlint/config-lerna-scopes'],
   rules: {
-    // @see: https://commitlint.js.org/#/reference-rules 1
+    // @see: https://commitlint.js.org/#/reference-rules
+    /**
+     * type[scope]: [function] description
+     *      ^^^^^
+     */
+    'scope-enum': [2, 'always', scopes],
+    /**
+     * type[scope]: [function] description
+     *
+     * ^^^^^^^^^^^^^^ empty line.
+     * - Something here
+     */
+    'body-leading-blank': [1, 'always'],
+    /**
+     * type[scope]: [function] description
+     *
+     * - something here
+     *
+     * ^^^^^^^^^^^^^^
+     */
+    'footer-leading-blank': [1, 'always'],
+    /**
+     * type[scope]: [function] description [No more than 72 characters]
+     *      ^^^^^
+     */
+    'header-max-length': [2, 'always', 72],
+    'scope-case': [2, 'always', 'lower-case'],
+    'subject-case': [
+      1,
+      'never',
+      ['sentence-case', 'start-case', 'pascal-case', 'upper-case'],
+    ],
+    'subject-empty': [2, 'never'],
+    'subject-full-stop': [2, 'never', '.'],
+    'type-case': [2, 'always', 'lower-case'],
+    'type-empty': [2, 'never'],
+    /**
+     * type[scope]: [function] description
+     * ^^^^
+     */
+    'type-enum': [
+      2,
+      'always',
+      [
+        'build',
+        'chore',
+        'ci',
+        'docs',
+        'feat',
+        'fix',
+        'perf',
+        'refactor',
+        'revert',
+        'release',
+        'style',
+        'test',
+        'improvement',
+      ],
+    ],
   },
   prompt: {
     alias: { fd: 'docs: fix typos' },
@@ -75,39 +166,10 @@ module.exports = {
         emoji: ':rewind:',
       },
     ],
-    useEmoji: false,
-    emojiAlign: 'center',
-    useAI: false,
-    aiNumber: 1,
-    themeColorCode: '',
-    scopes: [],
-    allowCustomScopes: true,
-    allowEmptyScopes: true,
-    customScopesAlign: 'bottom',
-    customScopesAlias: 'custom',
-    emptyScopesAlias: 'empty',
-    upperCaseSubject: false,
-    markBreakingChangeMode: false,
-    allowBreakingChanges: ['feat', 'fix'],
-    breaklineNumber: 100,
-    breaklineChar: '|',
-    skipQuestions: [],
-    issuePrefixes: [
-      { value: 'closed', name: 'closed:   ISSUES has been processed' },
-    ],
-    customIssuePrefixAlign: 'top',
-    emptyIssuePrefixAlias: 'skip',
-    customIssuePrefixAlias: 'custom',
-    allowCustomIssuePrefix: true,
-    allowEmptyIssuePrefix: true,
-    confirmColorize: true,
-    maxHeaderLength: Infinity,
-    maxSubjectLength: Infinity,
-    minSubjectLength: 0,
-    scopeOverrides: undefined,
-    defaultBody: '',
-    defaultIssues: '',
-    defaultScope: '',
-    defaultSubject: '',
+    defaultScope: scopeEnum,
+    customScopesAlign: !scopeEnum ? 'top' : 'bottom',
+    defaultSubject: subjectEnum && `[${subjectEnum}] `,
+    allowCustomIssuePrefix: false,
+    allowEmptyIssuePrefix: false,
   },
 }
