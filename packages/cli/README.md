@@ -1,5 +1,0 @@
-# `cli`
-
-> TODO: description
-
-## Usage

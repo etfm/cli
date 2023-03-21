@@ -1,22 +1,23 @@
 {
-  "name": "@etfm/cli",
+  "name": "@etfm/shared",
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "lzdjack <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
   "license": "ISC",
-  "bin": {
-    "etfm": "lib/cli.js"
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
-    "dist": "dist",
     "lib": "lib",
     "test": "__tests__"
   },
   "files": [
-    "lib",
-    "dist"
+    "dist",
+    "compiled"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/etfm/cli.git"

@@ -1,0 +1,35 @@
+{
+  "name": "@etfm/core",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "lzdjack <1956252575@qq.com>",
+  "homepage": "https://github.com/etfm/cli#readme",
+  "license": "ISC",
+  "main": "lib/core.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etfm/cli.git"
+  },
+  "scripts": {
+    "bootstrap": "pnpm install",
+    "dev": "father dev",
+    "build": "father build",
+    "build:deps": "father prebundle",
+    "prepublishOnly": "father doctor && npm run build",
+    "clean": "rimraf node_modules",
+    "reinstall": "pnpm clean && pnpm bootstrap"
+  },
+  "bugs": {
+    "url": "https://github.com/etfm/cli/issues"
+  }
+}

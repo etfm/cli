@@ -49,6 +49,12 @@ importers:
   packages/cli:
     specifiers: {}
 
+  packages/etfm:
+    specifiers:
+      '@etfm/shared': ^0.0.0
+    dependencies:
+      '@etfm/shared': link:../shared
+
 packages:
 
   /@ampproject/remapping/2.2.0:
