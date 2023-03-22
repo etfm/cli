@@ -24,14 +24,20 @@
   },
   "scripts": {
     "bootstrap": "pnpm install",
-    "dev": "father dev",
-    "build": "father build",
-    "build:deps": "father prebundle",
-    "prepublishOnly": "father doctor && npm run build",
+    "dev": "etfm-scripts father dev",
+    "build": "etfm-scripts build",
+    "build:deps": "etfm-scripts prebundle",
+    "prepublishOnly": "etfm-scripts doctor && npm run build",
     "clean": "rimraf node_modules",
     "reinstall": "pnpm clean && pnpm bootstrap"
   },
   "bugs": {
     "url": "https://github.com/etfm/cli/issues"
+  },
+  "dependencies": {
+    "npmlog": "^7.0.1"
+  },
+  "devDependencies": {
+    "@types/npmlog": "^4.1.4"
   }
 }

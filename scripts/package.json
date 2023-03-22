@@ -4,5 +4,8 @@
   "private": true,
   "bin": {
     "etfm-scripts": "bin/index.js"
+  },
+  "dependencies": {
+    "@etfm/shared": "^0.0.0"
   }
 }

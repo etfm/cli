@@ -1,0 +1,27 @@
+import { crossSpawn, log } from '@etfm/shared'
+;(async () => {
+  const args = process.argv.slice(2)
+
+  const isBuild = args.includes('build')
+  if (isBuild) {
+    args.push('--quiet')
+  }
+
+  const command = `father ${args.join(' ')}`
+
+  log.verbose('father:command', command)
+
+  const cmd = process.cwd()
+
+  log.verbose('father:cmd', cmd)
+
+  const result = crossSpawn.sync(command, {
+    shell: true,
+    stdio: 'inherit',
+    cwd: cmd,
+  })
+  if (result.status !== 0) {
+    log.error('father', `Execute command error (${cmd})`)
+    process.exit(1)
+  }
+})()
