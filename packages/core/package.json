@@ -5,6 +5,7 @@
   "author": "lzdjack <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
   "license": "ISC",
+  "type": "module",
   "main": "lib/core.js",
   "directories": {
     "lib": "lib",

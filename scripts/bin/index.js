@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const { join } = require('path')
-const { crossSpawn, log, chalk } = require('@etfm/shared')
-const assert = require('assert')
-const { existsSync } = require('fs')
+import { join } from 'path'
+import { crossSpawn, log, chalk } from '@etfm/shared'
+import assert from 'assert'
+import { existsSync } from 'fs'
 
 const argv = process.argv.slice(2)
 const [name, ...throughArgs] = argv

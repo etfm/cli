@@ -1,11 +1,15 @@
-import { log, glob } from '@etfm/shared'
+import { log, glob, inquirer } from '@etfm/shared'
 import { join, resolve } from 'path'
 import { readFileSync } from 'fs'
-;(() => {
-  log.verbose('scripts:build', '=====')
 
+const DEFAULT_OPTIONS = [
+  {
+    value: 'all',
+    title: 'all',
+  },
+]
+;(async () => {
   // 获取packages包下的package.json
-
   const path = join(__dirname, '../../')
   const getPackages = glob.sync('packages/**/package.json', {
     cwd: path,
@@ -14,18 +18,23 @@ import { readFileSync } from 'fs'
   // 读取package.json文件里的name（包名）
   const packageNames = getPackages
     .map((dir) => {
-      const dir_path = resolve(path, dir)
-      const content = readFileSync(dir_path, 'utf-8')
-
-      return JSON.parse(content).name
+      const content = readFileSync(resolve(path, dir), 'utf-8')
+      const parseContent = JSON.parse(content)
+      return {
+        value: parseContent.name,
+        title: parseContent.name,
+      }
     })
-    .filter((p) => p.includes('etfm'))
+    .filter((p) => p.value.includes('etfm'))
 
   log.verbose('scripts:packageNames', packageNames.toString())
 
-  //   const {}  = prompts({ type: 'multiselect', choices: [
-  //     {
-  //         value: ''
-  //     }
-  //   ] })
+  const projects = await inquirer.prompt({
+    name: 'project',
+    type: 'checkbox',
+    message: '请选择要构建的模块(Please select the module to build):',
+    choices: [...packageNames, ...DEFAULT_OPTIONS],
+  })
+
+  console.log('scripts:prompts', projects)
 })()

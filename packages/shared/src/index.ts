@@ -1,11 +1,11 @@
-import yParser from '../compiled/yargs-parser'
-import crossSpawn from '../compiled/cross-spawn'
-import * as execa from '../compiled/execa'
-import lodash from '../compiled/lodash'
+import yParser from 'yargs-parser'
+import crossSpawn from 'cross-spawn'
+import * as execa from 'execa'
+import lodash from 'lodash-es'
 import npmlog from 'npmlog'
-import chalk from '../compiled/chalk'
-import prompts from '../compiled/prompts'
-import glob from '../compiled/glob'
+import chalk from 'chalk'
+import glob from 'glob'
+import inquirer from 'inquirer'
 
 import { isDev } from './isDev'
 import { log } from './log'
@@ -19,6 +19,6 @@ export {
   isDev,
   log,
   chalk,
-  prompts,
+  inquirer,
   glob,
 }
