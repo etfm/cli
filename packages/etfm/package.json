@@ -4,7 +4,6 @@
   "description": "> TODO: description",
   "author": "lzdjack <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
-  "type": "module",
   "license": "ISC",
   "main": "dist/index.js",
   "types": "index.d.ts",

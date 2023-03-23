@@ -5,7 +5,6 @@
   "author": "lzdjack <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
   "license": "ISC",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
@@ -34,16 +33,5 @@
   },
   "bugs": {
     "url": "https://github.com/etfm/cli/issues"
-  },
-  "dependencies": {
-    "execa": "^7.1.1",
-    "inquirer": "^9.1.5",
-    "npmlog": "^7.0.1"
-  },
-  "devDependencies": {
-    "@types/inquirer": "^9.0.3",
-    "@types/lodash-es": "^4.17.6",
-    "@types/npmlog": "^4.1.4",
-    "@types/yargs-parser": "^21.0.0"
   }
 }
