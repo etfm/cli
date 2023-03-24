@@ -5,4 +5,4 @@ node_modules/
 coverage/
 .husky/
 compiled/
-bin/
+**/*.js
