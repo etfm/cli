@@ -26,7 +26,7 @@
   "scripts": {
     "bootstrap": "pnpm install",
     "dev": "father dev",
-    "build": "father build",
+    "build": "etfm-scripts father build",
     "build:deps": "father prebundle",
     "prepublishOnly": "father doctor && npm run build",
     "clean": "rimraf node_modules",

@@ -1,12 +1,6 @@
 import { crossSpawn, log } from '@etfm/shared'
 ;(async () => {
   const args = process.argv.slice(2)
-
-  const isBuild = args.includes('build')
-  if (isBuild) {
-    args.push('--quiet')
-  }
-
   const command = `father ${args.join(' ')}`
 
   log.verbose('father:command', command)
@@ -16,9 +10,9 @@ import { crossSpawn, log } from '@etfm/shared'
   log.verbose('father:cmd', cmd)
 
   const result = crossSpawn.sync(command, {
-    shell: true,
     stdio: 'inherit',
     cwd: cmd,
+    shell: true,
   })
   if (result.status !== 0) {
     log.error('father', `Execute command error (${cmd})`)
