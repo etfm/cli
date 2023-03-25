@@ -20,9 +20,8 @@ import { DEFAULT_OPTIONS } from './const'
 function execaShell(args: string[]) {
   args.forEach((name: string) => {
     execa
-      .execaCommand(`lerna run --scope ${name} dev`, {
+      .execaCommand(`lerna run --scope ${name} pnpm dev`, {
         stdio: 'inherit',
-        shell: true,
       })
       .catch((e) => {
         log.verbose(name, e.toString())
