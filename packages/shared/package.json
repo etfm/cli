@@ -33,5 +33,8 @@
   },
   "bugs": {
     "url": "https://github.com/etfm/cli/issues"
+  },
+  "dependencies": {
+    "esbuild": "^0.17.14"
   }
 }

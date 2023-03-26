@@ -8,10 +8,12 @@ import glob from '../compiled/glob'
 import inquirer from '../compiled/inquirer'
 import * as pkgUp from '../compiled/pkg-up'
 import pirates from '../compiled/pirates'
+import esbuild from '../compiled/esbuild'
 
 import { isDev } from './isDev'
 import { log } from './log'
 import { winPath } from './winPath'
+import * as register from './register'
 
 export {
   yParser,
@@ -27,4 +29,6 @@ export {
   pkgUp,
   winPath,
   pirates,
+  esbuild,
+  register,
 }
