@@ -1,0 +1,36 @@
+{
+  "name": "@etfm/etfm-plugin-version",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "lzdjack <1956252575@qq.com>",
+  "homepage": "https://github.com/etfm/cli#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "bootstrap": "pnpm install",
+    "dev": "etfm-scripts father dev",
+    "build": "etfm-scripts father build",
+    "build:deps": "etfm-scripts prebundle",
+    "prepublishOnly": "etfm-scripts doctor && npm run build",
+    "clean": "rimraf node_modules",
+    "reinstall": "pnpm clean && pnpm bootstrap"
+  },
+  "directories": {
+    "test": "__tests__"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etfm/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/etfm/cli/issues"
+  }
+}

@@ -1,7 +1,8 @@
 import { Plugin } from './plugin'
 import { Command } from './command'
-import { yParser, log } from '@etfm/shared'
+import { yParser, log, chalk } from '@etfm/shared'
 import { Hook } from './hook'
+import assert from 'assert'
 
 interface IOpts {
   cwd: string
@@ -12,7 +13,7 @@ export class Service {
   public plugins: Record<string, Plugin> = {}
   public commands: Record<string, Command> = {}
   public hooks: Record<string, Hook> = {}
-  public argvs: yParser.Arguments = { _: [], $0: '' }
+  public args: yParser.Arguments = { _: [], $0: '' }
   public opts: IOpts
 
   constructor(opts: IOpts) {
@@ -20,21 +21,27 @@ export class Service {
     this.opts = opts
   }
 
-  async run(commandName: string, argvs: Record<string, any>) {
-    console.log(commandName, argvs)
-    // 获取要执行命令
+  async run(commandName: string, args: yParser.Arguments) {
+    this.args = args
     // 获取插件
     const plugins = Plugin.getPlugins({
       cwd: this.opts.cwd,
       plugins: this.opts?.plugins,
     })
+
+    console.log('service:run', plugins)
     // 初始化插件并注册插件
     while (plugins.length) {
       await this.initPlugin({ plugin: plugins.shift()!, plugins })
     }
-    // 注册插件
-
     // 执行命令
+    const command = this.commands[commandName]
+    assert(
+      !command,
+      `Invalid command ${chalk.red(commandName)}, it's not registered.`
+    )
+
+    return (command as Command).fn({ args })
   }
 
   private async initPlugin(param: { plugin: Plugin; plugins: Plugin[] }) {

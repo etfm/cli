@@ -6,9 +6,12 @@ import npmlog from '../compiled/npmlog'
 import chalk from '../compiled/chalk'
 import glob from '../compiled/glob'
 import inquirer from '../compiled/inquirer'
+import * as pkgUp from '../compiled/pkg-up'
+import pirates from '../compiled/pirates'
 
 import { isDev } from './isDev'
 import { log } from './log'
+import { winPath } from './winPath'
 
 export {
   yParser,
@@ -21,4 +24,7 @@ export {
   chalk,
   inquirer,
   glob,
+  pkgUp,
+  winPath,
+  pirates,
 }

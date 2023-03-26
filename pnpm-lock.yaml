@@ -60,6 +60,8 @@ importers:
   packages/etfm:
     specifiers:
       '@etfm/core': ^0.0.0
+      '@etfm/etfm-plugin-version': ^0.0.0
+      '@etfm/plugin': ^0.0.0
       '@etfm/shared': ^0.0.0
     dependencies:
       '@etfm/shared': link:../shared

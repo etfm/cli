@@ -6,14 +6,14 @@ export async function run() {
   checkVersion(14)
 
   //接受参数
-  const argvs = yParser(process.argv.slice(2), {
+  const args = yParser(process.argv.slice(2), {
     alias: {
       version: ['v'],
       help: ['h'],
     },
   })
 
-  const commandName = argvs._[0]
+  const commandName = args._[0]
   if (commandName == 'dev') {
     process.env.DEBUG = 'debug'
   } else {
@@ -21,7 +21,7 @@ export async function run() {
   }
 
   try {
-    await new Service().start(commandName, argvs)
+    await new Service().start(commandName, args)
   } catch (e: any) {
     log.verbose('etfm:run', e.toString())
     process.exit(1)
