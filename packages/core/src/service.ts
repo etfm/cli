@@ -3,6 +3,7 @@ import { Command } from './command'
 import { yParser, log, chalk } from '@etfm/shared'
 import { Hook } from './hook'
 import assert from 'assert'
+import { Api } from './api'
 
 interface IOpts {
   cwd: string
@@ -15,10 +16,12 @@ export class Service {
   public hooks: Record<string, Hook> = {}
   public args: yParser.Arguments = { _: [], $0: '' }
   public opts: IOpts
+  public cwd: string
 
   constructor(opts: IOpts) {
     log.verbose('Service:', opts ? JSON.stringify(opts) : '')
     this.opts = opts
+    this.cwd = opts.cwd
   }
 
   async run(commandName: string, args: yParser.Arguments) {
@@ -45,6 +48,49 @@ export class Service {
   }
 
   private async initPlugin(param: { plugin: Plugin; plugins: Plugin[] }) {
-    console.log(param)
+    // assert(
+    //   !this.plugins[param.plugin.id],
+    //   `${param.plugin.id} is already registered by ${
+    //     this.plugins[param.plugin.id]?.path
+    //   },  ${param.plugin.path} register failed.`
+    // )
+    this.plugins[param.plugin.id] = param.plugin
+
+    const pluginAPI = new Api({
+      plugin: param.plugin,
+      service: this,
+    })
+    console.log(pluginAPI, '----------')
+
+    pluginAPI.registerPlugins = pluginAPI.registerPlugins.bind(
+      pluginAPI,
+      param.plugins
+    )
+
+    const proxyPluginAPI = Api.proxyPluginAPI({
+      service: this,
+      pluginAPI,
+      serviceProps: [
+        'appData',
+        'applyPlugins',
+        'args',
+        'config',
+        'cwd',
+        'pkg',
+        'pkgPath',
+        'name',
+        'paths',
+        'userConfig',
+        'env',
+        'isPluginEnable',
+      ],
+      staticProps: {
+        service: this,
+      },
+    })
+
+    const ret = await param.plugin.apply()(proxyPluginAPI)
+
+    return ret
   }
 }

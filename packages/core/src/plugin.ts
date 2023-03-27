@@ -29,7 +29,7 @@ export class Plugin {
         winPath(this.path)
     }
 
-    this.id = this.getId({ pkg, isPkgEntry, pkgPath })
+    this.id = this.getId({ pkg, isPkgEntry })
     log.verbose('plugin:constructor:id', this.id)
 
     this.key = this.getKey({ pkg, isPkgEntry })
@@ -52,12 +52,13 @@ export class Plugin {
       } finally {
         register.restore()
       }
+
       // use the default member for es modules
       return ret.__esModule ? ret.default : ret
     }
   }
 
-  private getId(param: { pkg: any; isPkgEntry: boolean; pkgPath: string }) {
+  private getId(param: { pkg: any; isPkgEntry: boolean }) {
     let id
     if (param.isPkgEntry) {
       id = param.pkg.name

@@ -5,8 +5,8 @@
   "author": "lzdjack <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
   "license": "ISC",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/version.js",
+  "types": "dist/version.d.ts",
   "scripts": {
     "bootstrap": "pnpm install",
     "dev": "etfm-scripts father dev",
