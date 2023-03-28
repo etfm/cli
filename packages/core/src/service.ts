@@ -1,6 +1,6 @@
 import { Plugin } from './plugin'
 import { Command } from './command'
-import { yParser, log, chalk } from '@etfm/shared'
+import { yParser, log, chalk, tapable } from '@etfm/shared'
 import { Hook } from './hook'
 import assert from 'assert'
 import { Api } from './api'
@@ -10,10 +10,16 @@ interface IOpts {
   plugins?: string[]
 }
 
+export enum ApplyPluginsType {
+  add = 'add',
+  modify = 'modify',
+  event = 'event',
+}
+
 export class Service {
   public plugins: Record<string, Plugin> = {}
   public commands: Record<string, Command> = {}
-  public hooks: Record<string, Hook> = {}
+  public hooks: Record<string, Hook[]> = {}
   public args: yParser.Arguments = { _: [], $0: '' }
   public opts: IOpts
   public cwd: string
@@ -22,6 +28,124 @@ export class Service {
     log.verbose('Service:', opts ? JSON.stringify(opts) : '')
     this.opts = opts
     this.cwd = opts.cwd
+  }
+
+  applyPlugins<T>(opts: {
+    key: string
+    type?: ApplyPluginsType.event
+    initialValue?: any
+    args?: any
+    sync: true
+  }): typeof opts.initialValue | T
+  applyPlugins<T>(opts: {
+    key: string
+    type?: ApplyPluginsType
+    initialValue?: any
+    args?: any
+  }): Promise<typeof opts.initialValue | T>
+  applyPlugins<T>(opts: {
+    key: string
+    type?: ApplyPluginsType
+    initialValue?: any
+    args?: any
+    sync?: boolean
+  }): Promise<typeof opts.initialValue | T> | (typeof opts.initialValue | T) {
+    const hooks = this.hooks[opts.key] || []
+    let type = opts.type
+    // guess type from key
+    if (!type) {
+      if (opts.key.startsWith('on')) {
+        type = ApplyPluginsType.event
+      } else if (opts.key.startsWith('modify')) {
+        type = ApplyPluginsType.modify
+      } else if (opts.key.startsWith('add')) {
+        type = ApplyPluginsType.add
+      } else {
+        throw new Error(
+          `Invalid applyPlugins arguments, type must be supplied for key ${opts.key}.`
+        )
+      }
+    }
+    switch (type) {
+      case ApplyPluginsType.add:
+        assert(
+          !('initialValue' in opts) || Array.isArray(opts.initialValue),
+          `applyPlugins failed, opts.initialValue must be Array if opts.type is add.`
+        )
+        const tAdd = new tapable.AsyncSeriesWaterfallHook(['memo'])
+        for (const hook of hooks) {
+          // if (!this.isPluginEnable(hook)) continue
+          tAdd.tapPromise(
+            {
+              // name: hook.plugin.key,
+              stage: hook.stage || 0,
+              before: hook.before,
+            },
+            async (memo: any) => {
+              const items = await hook.fn(opts.args)
+              return memo.concat(items)
+            }
+          )
+        }
+        return tAdd.promise(opts.initialValue || []) as Promise<T>
+      case ApplyPluginsType.modify:
+        const tModify = new tapable.AsyncSeriesWaterfallHook(['memo'])
+        for (const hook of hooks) {
+          // if (!this.isPluginEnable(hook)) continue
+          tModify.tapPromise(
+            {
+              // name: hook.plugin.key,
+              stage: hook.stage || 0,
+              before: hook.before,
+            },
+            async (memo: any) => {
+              const ret = await hook.fn(memo, opts.args)
+              return ret
+            }
+          )
+        }
+        return tModify.promise(opts.initialValue) as Promise<T>
+      case ApplyPluginsType.event:
+        if (opts.sync) {
+          const tEvent = new tapable.SyncWaterfallHook(['_'])
+          // hooks.forEach((hook) => {
+          //   if (this.isPluginEnable(hook)) {
+          //     tEvent.tap(
+          //       {
+          //         name: hook.plugin.key,
+          //         stage: hook.stage || 0,
+          //         before: hook.before,
+          //       },
+          //       () => {
+          //         hook.fn(opts.args)
+          //       }
+          //     )
+          //   }
+          // })
+
+          return tEvent.call(1) as T
+        }
+
+        const tEvent = new tapable.AsyncSeriesWaterfallHook(['_'])
+        for (const hook of hooks) {
+          // if (!this.isPluginEnable(hook)) continue
+          tEvent.tapPromise(
+            {
+              // name: hook.plugin.key,
+              stage: hook.stage || 0,
+              before: hook.before,
+            },
+            async () => {
+              await hook.fn(opts.args)
+            }
+          )
+        }
+        return tEvent.promise(1) as Promise<T>
+      default:
+        throw new Error(
+          `applyPlugins failed, type is not defined or is not matched, got ${opts.type}.`
+        )
+    }
   }
 
   async run(commandName: string, args: yParser.Arguments) {

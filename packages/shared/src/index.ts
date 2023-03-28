@@ -9,6 +9,7 @@ import inquirer from '../compiled/inquirer'
 import * as pkgUp from '../compiled/pkg-up'
 import pirates from '../compiled/pirates'
 import esbuild from '../compiled/esbuild'
+import tapable from '../compiled/tapable'
 
 import { isDev } from './isDev'
 import { log } from './log'
@@ -31,4 +32,5 @@ export {
   pirates,
   esbuild,
   register,
+  tapable,
 }

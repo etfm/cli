@@ -1,7 +1,9 @@
 import { Service } from './service'
 import { Plugin } from './plugin'
 import { lodash } from '@etfm/shared'
-// import assert from 'assert'
+import { Command, ICommandOpts } from './command'
+import assert from 'assert'
+import { Hook, IHookOpts } from './hook'
 
 export class Api {
   public service: Service
@@ -36,6 +38,33 @@ export class Api {
     })
 
     source.splice(0, 0, ...mappedPlugins)
+  }
+
+  registerCommand(param: ICommandOpts & { alias?: string | string[] }) {
+    const { alias } = param
+
+    delete param.alias
+    const registerCommand = (commandOpts: Omit<typeof param, 'alias'>) => {
+      const { name } = commandOpts
+
+      assert(
+        !this.service.commands[name],
+        `api.registerCommand() failed, the command ${name} is exists.`
+      )
+      this.service.commands[name] = new Command(commandOpts)
+    }
+    registerCommand(param)
+    if (alias) {
+      const aliases = Array.isArray(alias) ? alias : [alias]
+      aliases.forEach((alias) => {
+        registerCommand({ ...param, name: alias })
+      })
+    }
+  }
+
+  registerHook(opts: IHookOpts) {
+    this.service.hooks[opts.key] ||= []
+    this.service.hooks[opts.key].push(new Hook(opts))
   }
 
   static proxyPluginAPI(opts: {
