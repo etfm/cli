@@ -1,6 +1,7 @@
 import { Service } from './service'
 import { Plugin } from './plugin'
 import { lodash } from '@etfm/shared'
+// import assert from 'assert'
 
 export class Api {
   public service: Service
