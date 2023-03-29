@@ -11,7 +11,9 @@ import { DEFAULT_OPTIONS } from './const'
   })
 
   if (project.includes('all')) {
-    execaShell(packageNames.map((item) => item.value))
+    execaShell(
+      packageNames.map((item: { title: string; value: string }) => item.value)
+    )
   } else {
     execaShell(project)
   }
@@ -23,7 +25,7 @@ function execaShell(args: string[]) {
       .execaCommand(`lerna exec --scope ${name} pnpm build`, {
         stdio: 'inherit',
       })
-      .catch((e) => {
+      .catch((e: any) => {
         log.verbose(name, e.toString())
         log.error(name, `${name}构建失败`)
       })

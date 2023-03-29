@@ -5,12 +5,14 @@ import { readFileSync } from 'fs'
 // 获取模块
 function getPackages() {
   const path = join(__dirname, '../../')
-  const getPackages = glob.sync('packages/**/package.json', {
-    cwd: path,
-  })
+  const getPackages = glob
+    .sync('**/**/package.json', {
+      cwd: path,
+    })
+    .filter((path: string) => !path.includes('node_modules'))
 
   const packageNames = getPackages
-    .map((dir) => {
+    .map((dir: string) => {
       const content = readFileSync(resolve(path, dir), 'utf-8')
       const parseContent = JSON.parse(content)
       return {
@@ -18,7 +20,10 @@ function getPackages() {
         title: parseContent.name,
       }
     })
-    .filter((p) => p.value.includes('etfm'))
+    .filter(
+      (p: { title: string; value: string }) =>
+        p.value.includes('etfm') && !p.value.includes('etfm-scripts')
+    )
 
   return packageNames
 }
