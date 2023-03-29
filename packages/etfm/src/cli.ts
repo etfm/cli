@@ -13,6 +13,8 @@ export async function run() {
     },
   })
 
+  console.log(args, '========')
+
   const commandName = args._[0]
   if (commandName == 'dev') {
     process.env.DEBUG = 'debug'
