@@ -1,14 +1,38 @@
-import { winPath, pkgUp, log, lodash, register, esbuild } from '@etfm/shared'
+import {
+  winPath,
+  pkgUp,
+  log,
+  lodash,
+  register,
+  esbuild,
+  joi,
+  z,
+  zod,
+} from '@etfm/shared'
 import { existsSync } from 'fs'
 import { join, dirname, basename, extname } from 'path'
 import assert from 'assert'
+
+export interface IPluginConfig {
+  default?: any
+  schema?: {
+    (joi: joi.Root & { zod: typeof z }): joi.Schema | zod.Schema
+  }
+  onChange?: string | Function
+}
+
+export enum EnableBy {
+  register = 'register',
+  config = 'config',
+}
 
 export class Plugin {
   public key: string
   public path: string
   public apply: Function
-  public enableBy: any
+  enableBy: EnableBy | ((opts: { config: any }) => boolean) = EnableBy.register
   public cwd: string
+  public config: IPluginConfig = {}
 
   constructor(opts: { path: string; cwd: string }) {
     this.cwd = opts.cwd
@@ -58,6 +82,12 @@ export class Plugin {
       // use the default member for es modules
       return ret.__esModule ? ret.default : ret
     }
+  }
+
+  merge(opts: { key?: string; config?: IPluginConfig; enableBy?: any }) {
+    if (opts.key) this.key = opts.key
+    if (opts.config) this.config = opts.config
+    if (opts.enableBy) this.enableBy = opts.enableBy
   }
 
   private getKey(param: { pkg: any; isPkgEntry: boolean }) {

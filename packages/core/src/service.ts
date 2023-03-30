@@ -1,4 +1,4 @@
-import { Plugin } from './plugin'
+import { EnableBy, Plugin } from './plugin'
 import { Command } from './command'
 import { yParser, log, chalk, tapable } from '@etfm/shared'
 import { Hook } from './hook'
@@ -23,6 +23,8 @@ export class Service {
   public args: yParser.Arguments = { _: [], $0: '' }
   public opts: IOpts
   public cwd: string
+  public skipPluginKeys: Set<string> = new Set<string>()
+  public config: Record<string, any> = {}
 
   constructor(opts: IOpts) {
     log.verbose('Service:', opts ? JSON.stringify(opts) : '')
@@ -30,95 +32,95 @@ export class Service {
     this.cwd = opts.cwd
   }
 
-  // applyPlugins<T>(opts: {
-  //   key: string
-  //   type: ApplyPluginsType
-  //   initialValue?: any
-  //   args?: any
-  //   sync?: boolean
-  // }): Promise<typeof opts.initialValue | T> | (typeof opts.initialValue | T) {
-  //   assert(opts.key, `key is required`)
-  //   assert(opts.type, `type is required`)
-  //
-  //   const hooks = this.hooks[opts.key] || []
-  //   if (opts.type === ApplyPluginsType.add) {
-  //     assert(
-  //       !('initialValue' in opts) || Array.isArray(opts.initialValue),
-  //       `applyPlugins failed, opts.initialValue must be Array if opts.type is add.`
-  //     )
-  //     const tAdd = new tapable.AsyncSeriesWaterfallHook(['memo'])
-  //     for (const hook of hooks) {
-  //       // if (!this.isPluginEnable(hook)) continue
-  //       tAdd.tapPromise(
-  //         {
-  //           name: hook.plugin.key,
-  //           stage: hook.stage || 0,
-  //           before: hook.before,
-  //         },
-  //         async (memo: any) => {
-  //           const items = await hook.fn(opts.args)
-  //           return memo.concat(items)
-  //         }
-  //       )
-  //     }
-  //     return tAdd.promise(opts.initialValue || []) as Promise<T>
-  //   } else if (opts.type === ApplyPluginsType.modify) {
-  //     const tModify = new tapable.AsyncSeriesWaterfallHook(['memo'])
-  //     for (const hook of hooks) {
-  //       // if (!this.isPluginEnable(hook)) continue
-  //       tModify.tapPromise(
-  //         {
-  //           name: hook.plugin.key,
-  //           stage: hook.stage || 0,
-  //           before: hook.before,
-  //         },
-  //         async (memo: any) => {
-  //           const ret = await hook.fn(memo, opts.args)
-  //           return ret
-  //         }
-  //       )
-  //     }
-  //     return tModify.promise(opts.initialValue) as Promise<T>
-  //   } else if (opts.type === ApplyPluginsType.event) {
-  //     if (opts.sync) {
-  //       const tEvent = new tapable.SyncWaterfallHook(['_'])
-  //       hooks.forEach((hook) => {
-  //         if (this.isPluginEnable(hook)) {
-  //           tEvent.tap(
-  //             {
-  //               name: hook.plugin.key,
-  //               stage: hook.stage || 0,
-  //               before: hook.before,
-  //             },
-  //             () => {
-  //               hook.fn(opts.args)
-  //             }
-  //           )
-  //         }
-  //       })
-  //       return tEvent.call(1) as T
-  //     }
-  //     const tEvent = new tapable.AsyncSeriesWaterfallHook(['_'])
-  //     for (const hook of hooks) {
-  //       // if (!this.isPluginEnable(hook)) continue
-  //       tEvent.tapPromise(
-  //         {
-  //           name: hook.plugin.key,
-  //           stage: hook.stage || 0,
-  //           before: hook.before,
-  //         },
-  //         async () => {
-  //           await hook.fn(opts.args)
-  //         }
-  //       )
-  //     }
-  //     return tEvent.promise(1) as Promise<T>
-  //   } else {
-  //     throw new Error(
-  //       `applyPlugins failed, type is not defined or is not matched, got ${opts.type}.`
-  //     )
-  //   }
-  // }
+  applyPlugins<T>(opts: {
+    key: string
+    type: ApplyPluginsType
+    initialValue?: any
+    args?: any
+    sync?: boolean
+  }): Promise<typeof opts.initialValue | T> | (typeof opts.initialValue | T) {
+    assert(opts.key, `key is required`)
+    assert(opts.type, `type is required`)
+
+    const hooks = this.hooks.get(opts.key) || []
+    if (opts.type === ApplyPluginsType.add) {
+      assert(
+        !('initialValue' in opts) || Array.isArray(opts.initialValue),
+        `applyPlugins failed, opts.initialValue must be Array if opts.type is add.`
+      )
+      const tAdd = new tapable.AsyncSeriesWaterfallHook(['memo'])
+      for (const hook of hooks) {
+        if (!this.isPluginEnable(hook)) continue
+        tAdd.tapPromise(
+          {
+            name: hook.plugin.key,
+            stage: hook.stage || 0,
+            before: hook.before,
+          },
+          async (memo: any) => {
+            const items = await hook.fn(opts.args)
+            return memo.concat(items)
+          }
+        )
+      }
+      return tAdd.promise(opts.initialValue || []) as Promise<T>
+    } else if (opts.type === ApplyPluginsType.modify) {
+      const tModify = new tapable.AsyncSeriesWaterfallHook(['memo'])
+      for (const hook of hooks) {
+        if (!this.isPluginEnable(hook)) continue
+        tModify.tapPromise(
+          {
+            name: hook.plugin.key,
+            stage: hook.stage || 0,
+            before: hook.before,
+          },
+          async (memo: any) => {
+            const ret = await hook.fn(memo, opts.args)
+            return ret
+          }
+        )
+      }
+      return tModify.promise(opts.initialValue) as Promise<T>
+    } else if (opts.type === ApplyPluginsType.event) {
+      if (opts.sync) {
+        const tEvent = new tapable.SyncWaterfallHook(['_'])
+        hooks.forEach((hook) => {
+          if (this.isPluginEnable(hook)) {
+            tEvent.tap(
+              {
+                name: hook.plugin.key,
+                stage: hook.stage || 0,
+                before: hook.before,
+              },
+              () => {
+                hook.fn(opts.args)
+              }
+            )
+          }
+        })
+        return tEvent.call(1) as T
+      }
+      const tEvent = new tapable.AsyncSeriesWaterfallHook(['_'])
+      for (const hook of hooks) {
+        if (!this.isPluginEnable(hook)) continue
+        tEvent.tapPromise(
+          {
+            name: hook.plugin.key,
+            stage: hook.stage || 0,
+            before: hook.before,
+          },
+          async () => {
+            await hook.fn(opts.args)
+          }
+        )
+      }
+      return tEvent.promise(1) as Promise<T>
+    } else {
+      throw new Error(
+        `applyPlugins failed, type is not defined or is not matched, got ${opts.type}.`
+      )
+    }
+  }
 
   async run(commandName: string, args: yParser.Arguments) {
     this.args = args
@@ -165,7 +167,6 @@ export class Service {
       service: this,
       pluginAPI,
       serviceProps: [
-        'appData',
         'applyPlugins',
         'args',
         'config',
@@ -174,8 +175,6 @@ export class Service {
         'pkgPath',
         'name',
         'paths',
-        'userConfig',
-        'env',
         'isPluginEnable',
       ],
       staticProps: {
@@ -188,37 +187,33 @@ export class Service {
     return ret
   }
 
-  // isPluginEnable(hook: Hook | string) {
-  //   let plugin: Plugin
-  //   if ((hook as Hook).plugin) {
-  //     plugin = (hook as Hook).plugin
-  //   } else {
-  //     plugin = this.keyToPluginMap[hook as string]
-  //     if (!plugin) return false
-  //   }
-  //   const { id, key, enableBy } = plugin
-  //   if (this.skipPluginIds.has(id)) return false
-  //   if (this.userConfig[key] === false) return false
-  //   if (this.config[key] === false) return false
-  //   if (enableBy === EnableBy.config) {
-  //     // TODO: 提供单独的命令用于启用插件
-  //     // this.userConfig 中如果存在，启用
-  //     // this.config 好了之后如果存在，启用
-  //     // this.config 在 modifyConfig 和 modifyDefaultConfig 之后才会 ready
-  //     // 这意味着 modifyConfig 和 modifyDefaultConfig 只能判断 api.userConfig
-  //     // 举个具体场景:
-  //     //   - p1 enableBy config, p2 modifyDefaultConfig p1 = {}
-  //     //   - p1 里 modifyConfig 和 modifyDefaultConfig 仅 userConfig 里有 p1 有效，其他 p2 开启时即有效
-  //     //   - p2 里因为用了 modifyDefaultConfig，如果 p2 是 enableBy config，需要 userConfig 里配 p2，p2 和 p1 才有效
-  //     return key in this.userConfig || (this.config && key in this.config)
-  //   }
-  //   if (typeof enableBy === 'function')
-  //     return enableBy({
-  //       userConfig: this.userConfig,
-  //       config: this.config,
-  //       env: this.env,
-  //     })
-  //   // EnableBy.register
-  //   return true
-  // }
+  isPluginEnable(hook: Hook | string) {
+    let plugin: Plugin | undefined
+    if ((hook as Hook).plugin) {
+      plugin = (hook as Hook).plugin
+    } else {
+      plugin = this.plugins.get(hook as string)
+      if (!plugin) return false
+    }
+    const { key, enableBy } = plugin
+    if (this.skipPluginKeys.has(key)) return false
+    if (this.config[key] === false) return false
+    if (enableBy === EnableBy.config) {
+      // TODO: 提供单独的命令用于启用插件
+      // this.config 好了之后如果存在，启用
+      // this.config 在 modifyConfig 和 modifyDefaultConfig 之后才会 ready
+      // 这意味着 modifyConfig 和 modifyDefaultConfig 只能判断 api.userConfig
+      // 举个具体场景:
+      //   - p1 enableBy config, p2 modifyDefaultConfig p1 = {}
+      //   - p1 里 modifyConfig 和 modifyDefaultConfig 仅 userConfig 里有 p1 有效，其他 p2 开启时即有效
+      //   - p2 里因为用了 modifyDefaultConfig，如果 p2 是 enableBy config，需要 userConfig 里配 p2，p2 和 p1 才有效
+      return this.config && key in this.config
+    }
+    if (typeof enableBy === 'function')
+      return enableBy({
+        config: this.config,
+      })
+    // EnableBy.register
+    return true
+  }
 }

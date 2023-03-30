@@ -10,6 +10,8 @@ import * as pkgUp from '../compiled/pkg-up'
 import pirates from '../compiled/pirates'
 import esbuild from '../compiled/esbuild'
 import tapable from '../compiled/tapable'
+import joi from '../compiled/joi'
+import zod, { z } from '../compiled/zod'
 
 import { isDev } from './isDev'
 import { log } from './log'
@@ -33,4 +35,7 @@ export {
   esbuild,
   register,
   tapable,
+  joi,
+  z,
+  zod,
 }
