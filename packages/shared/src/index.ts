@@ -12,6 +12,7 @@ import esbuild from '../compiled/esbuild'
 import tapable from '../compiled/tapable'
 import joi from '../compiled/joi'
 import zod, { z } from '../compiled/zod'
+import semver from '../compiled/semver'
 
 import { isDev } from './isDev'
 import { log } from './log'
@@ -38,4 +39,5 @@ export {
   joi,
   z,
   zod,
+  semver,
 }
