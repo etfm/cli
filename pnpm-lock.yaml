@@ -75,6 +75,10 @@ importers:
     dependencies:
       esbuild: 0.17.14
 
+  plugin/etfm-plugin-config:
+    specifiers:
+      '@etfm/shared': ^0.0.0
+
   plugin/etfm-plugin-version:
     specifiers: {}
 
