@@ -1,9 +1,10 @@
-import { yParser, log } from '@etfm/shared'
+import { yParser, log, isDebug } from '@etfm/shared'
 import { Service } from './service'
+import { DEV_COMMAND, FRAMEWORK_NAME, MIN_NODE_VERSION } from './constants'
 
 export async function run() {
   // 检查node版本
-  checkVersion(14)
+  checkVersion(MIN_NODE_VERSION)
 
   //接受参数
   const args = yParser(process.argv.slice(2), {
@@ -13,13 +14,20 @@ export async function run() {
     },
   })
 
-  console.log(args, '========')
+  // env 初始化设置
+  process.env.FRAMEWORK_NAME = FRAMEWORK_NAME
 
-  const commandName = args._[0]
-  if (commandName == 'dev') {
+  if (isDebug()) {
     process.env.DEBUG = 'debug'
   } else {
     process.env.DEBUG = ''
+  }
+
+  const commandName = args._[0]
+  if (commandName === DEV_COMMAND) {
+    process.env.NODE_ENV = 'development'
+  } else if (commandName === 'build') {
+    process.env.NODE_ENV = 'production'
   }
 
   try {

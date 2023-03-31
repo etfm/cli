@@ -14,7 +14,7 @@ import joi from '../compiled/joi'
 import zod, { z } from '../compiled/zod'
 import semver from '../compiled/semver'
 
-import { isDev } from './isDev'
+import { isDebug } from './isDebug'
 import { log } from './log'
 import { winPath } from './winPath'
 import * as register from './register'
@@ -25,7 +25,7 @@ export {
   execa,
   lodash,
   npmlog,
-  isDev,
+  isDebug,
   log,
   chalk,
   inquirer,

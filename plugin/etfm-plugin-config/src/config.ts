@@ -1,6 +1,7 @@
 import { getSchemas } from './schema'
 
 export default (api: any) => {
+  console.log(api, '----------------------------------')
   const configDefaults: Record<string, any> = {}
 
   const extraSchemas = getSchemas()
@@ -17,14 +18,14 @@ export default (api: any) => {
     api.registerPlugins([
       {
         id: `virtual: config-${key}`,
-        key: key,
+        key,
         config,
       },
     ])
   }
 
-  api.modifyConfig((memo: any, args: any) => {
-    console.log('etfm-plugin-config:modifyConfig', memo, args)
-    return memo
-  })
+  // api.modifyConfig((memo: any, args: any) => {
+  //   console.log('etfm-plugin-config:modifyConfig', memo, args)
+  //   return memo
+  // })
 }

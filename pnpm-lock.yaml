@@ -56,18 +56,23 @@ importers:
   packages/core:
     specifiers:
       '@etfm/shared': ^0.0.0
+      '@etfm/types': ^0.0.0
     dependencies:
       '@etfm/shared': link:../shared
+      '@etfm/types': link:../types
 
   packages/etfm:
     specifiers:
       '@etfm/core': ^0.0.0
+      '@etfm/etfm-plugin-config': ^0.0.0
       '@etfm/etfm-plugin-version': ^0.0.0
       '@etfm/shared': ^0.0.0
+      '@etfm/types': ^0.0.0
     dependencies:
       '@etfm/core': link:../core
       '@etfm/etfm-plugin-version': link:../../plugin/etfm-plugin-version
       '@etfm/shared': link:../shared
+      '@etfm/types': link:../types
 
   packages/shared:
     specifiers:
@@ -75,9 +80,14 @@ importers:
     dependencies:
       esbuild: 0.17.14
 
+  packages/types:
+    specifiers: {}
+
   plugin/etfm-plugin-config:
     specifiers:
       '@etfm/shared': ^0.0.0
+    dependencies:
+      '@etfm/shared': link:../../packages/shared
 
   plugin/etfm-plugin-version:
     specifiers: {}

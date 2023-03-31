@@ -37,7 +37,9 @@
   },
   "dependencies": {
     "@etfm/core": "^0.0.0",
+    "@etfm/etfm-plugin-config": "^0.0.0",
     "@etfm/etfm-plugin-version": "^0.0.0",
-    "@etfm/shared": "^0.0.0"
+    "@etfm/shared": "^0.0.0",
+    "@etfm/types": "^0.0.0"
   }
 }

@@ -1,4 +1,4 @@
-export const DEFAULT_CONFIG_FILES = ['config.ts', 'config.js']
+export const DEFAULT_CONFIG_FILES = ['.etfmrc.ts', '.etfmrc.js']
 
 export const SHORT_ENV = {
   development: 'dev',

@@ -1,5 +1,7 @@
 import { Service as Core } from '@etfm/core'
 import { yParser } from '@etfm/shared'
+import { DEFAULT_CONFIG_FILES, FRAMEWORK_NAME } from './constants'
+import { NodeEnv } from '@etfm/types'
 
 function getCwd() {
   return process.cwd()
@@ -12,7 +14,13 @@ export class Service extends Core {
     super({
       ...opts,
       cwd,
-      plugins: [require.resolve('@etfm/etfm-plugin-version')],
+      env: process.env.NODE_ENV as NodeEnv,
+      defaultConfigFiles: DEFAULT_CONFIG_FILES,
+      frameworkName: process.env.FRAMEWORK_NAME ?? FRAMEWORK_NAME,
+      plugins: [
+        require.resolve('@etfm/etfm-plugin-version'),
+        require.resolve('@etfm/etfm-plugin-config'),
+      ],
     })
   }
 

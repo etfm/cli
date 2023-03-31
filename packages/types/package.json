@@ -1,16 +1,12 @@
 {
-  "name": "@etfm/core",
+  "name": "@etfm/types",
   "version": "0.0.0",
   "description": "> TODO: description",
-  "author": "lzdjack <1956252575@qq.com>",
+  "author": "liuzhidong <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
   "license": "ISC",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
   "files": [
     "dist"
   ],
@@ -25,16 +21,12 @@
     "bootstrap": "pnpm install",
     "dev": "etfm-scripts father dev",
     "build": "etfm-scripts father build",
-    "build:deps": "etfm-scripts father prebundle",
-    "prepublishOnly": "etfm-scripts father doctor && npm run build",
+    "build:deps": "etfm-scripts prebundle",
+    "prepublishOnly": "etfm-scripts doctor && npm run build",
     "clean": "rimraf node_modules",
     "reinstall": "pnpm clean && pnpm bootstrap"
   },
   "bugs": {
     "url": "https://github.com/etfm/cli/issues"
-  },
-  "dependencies": {
-    "@etfm/shared": "^0.0.0",
-    "@etfm/types": "^0.0.0"
   }
 }

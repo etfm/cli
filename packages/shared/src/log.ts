@@ -1,7 +1,7 @@
 import log from '../compiled/npmlog'
-import { isDev } from './isDev'
+import { isDebug } from './isDebug'
 
-if (isDev()) {
+if (isDebug()) {
   log.level = 'verbose'
 } else {
   log.level = 'info'

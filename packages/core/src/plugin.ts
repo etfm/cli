@@ -21,22 +21,19 @@ export interface IPluginConfig {
   onChange?: string | Function
 }
 
-export enum EnableBy {
-  register = 'register',
-  config = 'config',
-}
-
 export class Plugin {
+  public id: string
   public key: string
   public path: string
   public apply: Function
-  enableBy: EnableBy | ((opts: { config: any }) => boolean) = EnableBy.register
+  enable: boolean | ((opts: { config: any }) => boolean)
   public cwd: string
   public config: IPluginConfig = {}
 
   constructor(opts: { path: string; cwd: string }) {
     this.cwd = opts.cwd
     this.path = winPath(opts.path)
+    this.enable = true
 
     assert(existsSync(this.path), `Invalid ${this.path}, it's not exists.`)
 
@@ -52,6 +49,8 @@ export class Plugin {
         winPath(this.path)
     }
 
+    this.id = this.getId({ pkg, isPkgEntry })
+    log.verbose('plugin:constructor:id', this.id)
     // key的两种形式：
     // 1.package.json的name
     // 2.插件的文件名
@@ -59,7 +58,6 @@ export class Plugin {
     //     initial-state -> initialState
     //     webpack.css-loader -> webpack.cssLoader
     this.key = this.getKey({ pkg, isPkgEntry })
-
     log.verbose('plugin:constructor:key', this.key)
 
     this.apply = () => {
@@ -84,10 +82,25 @@ export class Plugin {
     }
   }
 
-  merge(opts: { key?: string; config?: IPluginConfig; enableBy?: any }) {
+  merge(opts: {
+    key?: string
+    config?: IPluginConfig
+    enable?: boolean | ((enableByOpts: { config: any }) => boolean)
+  }) {
     if (opts.key) this.key = opts.key
     if (opts.config) this.config = opts.config
-    if (opts.enableBy) this.enableBy = opts.enableBy
+    if (opts.enable) this.enable = opts.enable
+  }
+
+  getId(opts: { pkg: any; isPkgEntry: boolean }) {
+    let id
+    if (opts.isPkgEntry) {
+      id = opts.pkg.name
+    } else {
+      id = winPath(this.path)
+    }
+    id = id.replace(/\.js$/, '')
+    return id
   }
 
   private getKey(param: { pkg: any; isPkgEntry: boolean }) {
@@ -102,9 +115,16 @@ export class Plugin {
       .join('.')
   }
 
-  static getPlugins(param: { cwd: string; plugins?: string[] }) {
+  static getPlugins(param: {
+    cwd: string
+    plugins?: string[]
+    config: Record<string, any>
+  }) {
     // 获取插件路径
-    const plugins = param.plugins ?? []
+    const plugins = [
+      ...(param.plugins || []),
+      ...(param.config['plugins'] || []),
+    ]
     return plugins.map((path) => {
       return new Plugin({
         path,

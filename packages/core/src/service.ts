@@ -1,40 +1,53 @@
-import { EnableBy, Plugin } from './plugin'
+import { Plugin } from './plugin'
 import { Command } from './command'
 import { yParser, log, chalk, tapable } from '@etfm/shared'
 import { Hook } from './hook'
 import assert from 'assert'
 import { Api } from './api'
+import { Config } from './config'
+import { NodeEnv } from '@etfm/types'
+import { getPaths } from './path'
+import { DEFAULT_FRAMEWORK_NAME } from './constants'
 
 interface IOpts {
   cwd: string
+  defaultConfigFiles: string[]
+  frameworkName: string
+  env: NodeEnv
   plugins?: string[]
 }
 
-export enum ApplyPluginsType {
+export enum ApplyHooksType {
   add = 'add',
   modify = 'modify',
   event = 'event',
 }
 
 export class Service {
-  public plugins: Map<string, Plugin> = new Map()
-  public commands: Map<string, Command> = new Map<string, Command>()
-  public hooks: Map<string, Hook[]> = new Map()
+  public plugins: Record<string, Plugin> = {}
+  public keyToPluginMap: Record<string, Plugin> = {}
+  public commands: Record<string, Command> = {}
+  public hooks: Record<string, Hook[]> = {}
   public args: yParser.Arguments = { _: [], $0: '' }
   public opts: IOpts
   public cwd: string
-  public skipPluginKeys: Set<string> = new Set<string>()
+  public skipPluginIds: Set<string> = new Set<string>()
   public config: Record<string, any> = {}
+  public env: NodeEnv
+  public frameworkName: string
+  public paths: Record<string, any> = {}
 
   constructor(opts: IOpts) {
     log.verbose('Service:', opts ? JSON.stringify(opts) : '')
     this.opts = opts
     this.cwd = opts.cwd
+    this.env = opts.env
+    this.frameworkName = opts.frameworkName || DEFAULT_FRAMEWORK_NAME
   }
 
-  applyPlugins<T>(opts: {
+  applyHooks<T>(opts: {
     key: string
-    type: ApplyPluginsType
+    type: ApplyHooksType
     initialValue?: any
     args?: any
     sync?: boolean
@@ -42,8 +55,8 @@ export class Service {
     assert(opts.key, `key is required`)
     assert(opts.type, `type is required`)
 
-    const hooks = this.hooks.get(opts.key) || []
-    if (opts.type === ApplyPluginsType.add) {
+    const hooks = this.hooks[opts.key] || []
+    if (opts.type === ApplyHooksType.add) {
       assert(
         !('initialValue' in opts) || Array.isArray(opts.initialValue),
         `applyPlugins failed, opts.initialValue must be Array if opts.type is add.`
@@ -64,7 +77,7 @@ export class Service {
         )
       }
       return tAdd.promise(opts.initialValue || []) as Promise<T>
-    } else if (opts.type === ApplyPluginsType.modify) {
+    } else if (opts.type === ApplyHooksType.modify) {
       const tModify = new tapable.AsyncSeriesWaterfallHook(['memo'])
       for (const hook of hooks) {
         if (!this.isPluginEnable(hook)) continue
@@ -81,7 +94,7 @@ export class Service {
         )
       }
       return tModify.promise(opts.initialValue) as Promise<T>
-    } else if (opts.type === ApplyPluginsType.event) {
+    } else if (opts.type === ApplyHooksType.event) {
       if (opts.sync) {
         const tEvent = new tapable.SyncWaterfallHook(['_'])
         hooks.forEach((hook) => {
@@ -124,18 +137,49 @@ export class Service {
 
   async run(commandName: string, args: yParser.Arguments) {
     this.args = args
+
+    // 初始化地址
+    this.paths = getPaths({
+      cwd: this.cwd,
+      prefix: this.frameworkName,
+      env: this.env,
+    })
+    // 获取配置文件信息
+    const config = new Config({
+      service: this,
+      cwd: this.cwd,
+      env: this.env,
+      defaultConfigFiles: this.opts.defaultConfigFiles,
+    })
+
+    this.config = config
+
+    const all_config = config.getConfig()
+
+    console.log('service:run:all_config', all_config)
     // 获取插件
     const plugins = Plugin.getPlugins({
       cwd: this.opts.cwd,
       plugins: this.opts?.plugins,
+      config: all_config,
     })
 
     // 初始化插件并注册插件
     while (plugins.length) {
       await this.initPlugin({ plugin: plugins.shift()!, plugins })
     }
+
+    // 收集config一些属性
+    await config.setAttrConfig()
+
+    // 开始钩子
+    await this.applyHooks({
+      key: 'onStart',
+      type: ApplyHooksType.event,
+    })
+
     // 执行命令
-    const command = this.commands.get(commandName)
+    const command = this.commands[commandName]
     assert(
       !command,
       `Invalid command ${chalk.red(commandName)}, it's not registered.`
@@ -146,12 +190,12 @@ export class Service {
 
   private async initPlugin(param: { plugin: Plugin; plugins: Plugin[] }) {
     assert(
-      !this.plugins.get(param.plugin.key),
-      `${param.plugin.key} is already registered by ${
-        this.plugins.get(param.plugin.key)?.path
+      !this.plugins[param.plugin.id],
+      `${param.plugin.id} is already registered by ${
+        this.plugins[param.plugin.id]?.path
       }`
     )
-    this.plugins.set(param.plugin.key, param.plugin)
+    this.plugins[param.plugin.id] = param.plugin
 
     const pluginAPI = new Api({
       plugin: param.plugin,
@@ -167,15 +211,18 @@ export class Service {
       service: this,
       pluginAPI,
       serviceProps: [
-        'applyPlugins',
+        'applyHooks',
         'args',
         'config',
         'cwd',
-        'pkg',
-        'pkgPath',
-        'name',
         'paths',
         'isPluginEnable',
+        'plugins',
+        'hooks',
+        'commands',
+        'skipPluginIds',
+        'env',
+        'keyToPluginMap',
       ],
       staticProps: {
         service: this,
@@ -183,37 +230,29 @@ export class Service {
     })
 
     const ret = await param.plugin.apply()(proxyPluginAPI)
-
+    this.keyToPluginMap[param.plugin.key] = param.plugin
     return ret
   }
 
-  isPluginEnable(hook: Hook | string) {
+  // 查看是否启用了插件
+  // 因为一些钩子是注册在插件中，因此插件被禁用，那么插件内的一些注册钩子也将失效
+  // name 有可能是id（插件id）、hook（hook内注册了plugin，因此可以判断出当前plugin是否启用）
+  isPluginEnable(name: any) {
     let plugin: Plugin | undefined
-    if ((hook as Hook).plugin) {
-      plugin = (hook as Hook).plugin
+    if ((name as Hook).plugin) {
+      plugin = (name as Hook).plugin
     } else {
-      plugin = this.plugins.get(hook as string)
+      plugin = this.plugins[name as string]
       if (!plugin) return false
     }
-    const { key, enableBy } = plugin
-    if (this.skipPluginKeys.has(key)) return false
+    const { id, key, enable } = plugin
+    if (this.skipPluginIds.has(id)) return false
     if (this.config[key] === false) return false
-    if (enableBy === EnableBy.config) {
-      // TODO: 提供单独的命令用于启用插件
-      // this.config 好了之后如果存在，启用
-      // this.config 在 modifyConfig 和 modifyDefaultConfig 之后才会 ready
-      // 这意味着 modifyConfig 和 modifyDefaultConfig 只能判断 api.userConfig
-      // 举个具体场景:
-      //   - p1 enableBy config, p2 modifyDefaultConfig p1 = {}
-      //   - p1 里 modifyConfig 和 modifyDefaultConfig 仅 userConfig 里有 p1 有效，其他 p2 开启时即有效
-      //   - p2 里因为用了 modifyDefaultConfig，如果 p2 是 enableBy config，需要 userConfig 里配 p2，p2 和 p1 才有效
-      return this.config && key in this.config
-    }
-    if (typeof enableBy === 'function')
-      return enableBy({
+    if (enable == false) return false
+    if (typeof enable === 'function')
+      return enable({
         config: this.config,
       })
-    // EnableBy.register
     return true
   }
 }
