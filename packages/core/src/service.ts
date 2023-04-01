@@ -1,4 +1,4 @@
-import { Plugin } from './plugin'
+import { getPlugins, Plugin } from './plugin'
 import { Command } from './command'
 import { yParser, log, chalk, tapable } from '@etfm/shared'
 import { Hook } from './hook'
@@ -8,6 +8,9 @@ import { Config } from './config'
 import { NodeEnv } from '@etfm/types'
 import { getPaths } from './path'
 import { DEFAULT_FRAMEWORK_NAME } from './constants'
+import { ServiceStage } from './types'
+import { loadEnv } from './env'
+import { join } from 'path'
 
 interface IOpts {
   cwd: string
@@ -32,19 +35,41 @@ export class Service {
   public opts: IOpts
   public cwd: string
   public skipPluginIds: Set<string> = new Set<string>()
-  public config: Record<string, any> = {}
   public env: NodeEnv
   public frameworkName: string
   public paths: Record<string, any> = {}
-
+  public config: Config
+  public stage: ServiceStage = ServiceStage.uninitialized
+  public pkg: Record<string, any> = {}
+  public pkgPath = ''
   constructor(opts: IOpts) {
     log.verbose('Service:', opts ? JSON.stringify(opts) : '')
+
     this.opts = opts
     this.cwd = opts.cwd
     this.env = opts.env
     this.frameworkName = opts.frameworkName || DEFAULT_FRAMEWORK_NAME
+    this.config = new Config({
+      service: this,
+      cwd: opts.cwd,
+      env: opts.env,
+      defaultConfigFiles: opts.defaultConfigFiles,
+    })
   }
 
+  applyHooks<T>(opts: {
+    key: string
+    type: ApplyHooksType.event
+    initialValue?: any
+    args?: any
+    sync: true
+  }): typeof opts.initialValue | T
+  applyHooks<T>(opts: {
+    key: string
+    type: ApplyHooksType
+    initialValue?: any
+    args?: any
+  }): Promise<typeof opts.initialValue | T>
   applyHooks<T>(opts: {
     key: string
     type: ApplyHooksType
@@ -55,6 +80,7 @@ export class Service {
     assert(opts.key, `key is required`)
     assert(opts.type, `type is required`)
 
+    log.verbose('Service:applyHooks:opts', JSON.stringify(opts))
     const hooks = this.hooks[opts.key] || []
     if (opts.type === ApplyHooksType.add) {
       assert(
@@ -88,11 +114,11 @@ export class Service {
             before: hook.before,
           },
           async (memo: any) => {
-            const ret = await hook.fn(memo, opts.args)
-            return ret
+            return await hook.fn(memo, opts.args)
           }
         )
       }
+
       return tModify.promise(opts.initialValue) as Promise<T>
     } else if (opts.type === ApplyHooksType.event) {
       if (opts.sync) {
@@ -136,55 +162,61 @@ export class Service {
   }
 
   async run(commandName: string, args: yParser.Arguments) {
+    args._ = args._ || []
+    // shift the command itself
+    if (args._[0] === commandName) args._.shift()
     this.args = args
 
+    this.stage = ServiceStage.init
+    // 初始化环境变量
+    loadEnv({ cwd: this.cwd, envFile: '.env' })
+    // 获取项目信息
+    this.getPkg()
     // 初始化地址
     this.paths = getPaths({
       cwd: this.cwd,
       prefix: this.frameworkName,
       env: this.env,
     })
-    // 获取配置文件信息
-    const config = new Config({
-      service: this,
-      cwd: this.cwd,
-      env: this.env,
-      defaultConfigFiles: this.opts.defaultConfigFiles,
-    })
 
-    this.config = config
+    log.verbose('paths', JSON.stringify(this.paths))
 
-    const all_config = config.getConfig()
+    // 未修改之前的config
+    const userConfig = this.config.getConfig()
 
-    console.log('service:run:all_config', all_config)
     // 获取插件
-    const plugins = Plugin.getPlugins({
+    const plugins = getPlugins({
       cwd: this.opts.cwd,
       plugins: this.opts?.plugins,
-      config: all_config,
+      config: userConfig,
     })
 
     // 初始化插件并注册插件
+    this.stage = ServiceStage.init
     while (plugins.length) {
       await this.initPlugin({ plugin: plugins.shift()!, plugins })
     }
 
-    // 收集config一些属性
-    await config.setAttrConfig()
+    const command = this.commands[commandName]
+
+    assert(
+      command,
+      `Invalid command ${chalk.red(commandName)}, it's not registered.`
+    )
+
+    // 收集可能更改后config一些属性
+    // 这里已经获取了修改之后的完整config
+    this.stage = ServiceStage.resolveConfig
+    await this.config.getModifyConfig()
 
     // 开始钩子
+    this.stage = ServiceStage.onStart
     await this.applyHooks({
       key: 'onStart',
       type: ApplyHooksType.event,
     })
 
-    // 执行命令
-    const command = this.commands[commandName]
-    assert(
-      !command,
-      `Invalid command ${chalk.red(commandName)}, it's not registered.`
-    )
-
+    this.stage = ServiceStage.runCommand
     return (command as unknown as Command).fn({ args })
   }
 
@@ -202,6 +234,9 @@ export class Service {
       service: this,
     })
 
+    // 转换指针，并绑定第一个参数，因为插件内部可能会还注册插件，
+    // 因此当再次注册插件时会保存进内存（plugins）中，进行while循环，给新注册的插件初始化（initPlugin）
+    // 插件注册之后需要收集插件进行其他的操作
     pluginAPI.registerPlugins = pluginAPI.registerPlugins.bind(
       pluginAPI,
       param.plugins
@@ -223,21 +258,45 @@ export class Service {
         'skipPluginIds',
         'env',
         'keyToPluginMap',
+        'pkg',
+        'pkgPath',
+        'frameworkName',
       ],
       staticProps: {
         service: this,
+        ServiceStage,
       },
     })
 
     const ret = await param.plugin.apply()(proxyPluginAPI)
+
+    assert(
+      !this.keyToPluginMap[param.plugin.key],
+      `key ${param.plugin.key} is already registered by ${
+        this.keyToPluginMap[param.plugin.key]?.path
+      }, plugin from ${param.plugin.path} register failed.`
+    )
+
     this.keyToPluginMap[param.plugin.key] = param.plugin
-    return ret
+
+    if (ret?.plugins) {
+      ret.plugins = ret.plugins.map(
+        (plugin: string) =>
+          new Plugin({
+            path: plugin,
+            cwd: this.cwd,
+          })
+      )
+    }
+    return ret || {}
   }
 
   // 查看是否启用了插件
   // 因为一些钩子是注册在插件中，因此插件被禁用，那么插件内的一些注册钩子也将失效
   // name 有可能是id（插件id）、hook（hook内注册了plugin，因此可以判断出当前plugin是否启用）
   isPluginEnable(name: any) {
+    const userConfig = this.config.userConfig
+    const config = this.config.config
     let plugin: Plugin | undefined
     if ((name as Hook).plugin) {
       plugin = (name as Hook).plugin
@@ -247,12 +306,33 @@ export class Service {
     }
     const { id, key, enable } = plugin
     if (this.skipPluginIds.has(id)) return false
-    if (this.config[key] === false) return false
+    if (userConfig[key] === false) return false
+    if (config[key] === false) return false
     if (enable == false) return false
     if (typeof enable === 'function')
       return enable({
         config: this.config,
       })
     return true
+  }
+
+  getPkg() {
+    let pkg: Record<string, string | Record<string, any>> = {}
+    let pkgPath = ''
+    try {
+      pkg = require(join(this.cwd, 'package.json'))
+      pkgPath = join(this.cwd, 'package.json')
+    } catch (_e) {
+      // APP_ROOT
+      if (this.cwd !== process.cwd()) {
+        try {
+          pkg = require(join(process.cwd(), 'package.json'))
+          pkgPath = join(process.cwd(), 'package.json')
+        } catch (_e) {}
+      }
+    }
+
+    this.pkg = pkg
+    this.pkgPath = pkgPath
   }
 }

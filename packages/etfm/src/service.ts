@@ -14,22 +14,23 @@ export class Service extends Core {
     super({
       ...opts,
       cwd,
-      env: process.env.NODE_ENV as NodeEnv,
+      env: opts?.env || (process.env.NODE_ENV as NodeEnv),
       defaultConfigFiles: DEFAULT_CONFIG_FILES,
       frameworkName: process.env.FRAMEWORK_NAME ?? FRAMEWORK_NAME,
       plugins: [
-        require.resolve('@etfm/etfm-plugin-version'),
+        // require.resolve('@etfm/etfm-plugin-version'),
         require.resolve('@etfm/etfm-plugin-config'),
+        ...(opts?.plugins || []),
       ],
     })
   }
 
-  async start(commandName: string, args: yParser.Arguments) {
-    if (args?.v || commandName == 'version') {
-      commandName = 'version'
-    } else if (args?.h || commandName == 'help') {
-      commandName = 'help'
+  async start(param: { commandName: string; args: yParser.Arguments }) {
+    if (param.args?.v || param.commandName == 'version') {
+      param.commandName = 'version'
+    } else if (param.args?.h || param.commandName == 'help') {
+      param.commandName = 'help'
     }
-    return this.run(commandName, args)
+    return this.run(param.commandName, param.args)
   }
 }

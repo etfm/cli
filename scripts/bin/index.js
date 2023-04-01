@@ -26,6 +26,6 @@ const spawn = crossSpawn.sync('tsx', [scriptPathAsStr, ...throughArgs], {
   shell: true,
 })
 if (spawn.status !== 0) {
-  console.log(chalk.red(`umi-scripts: ${name} execute fail`))
+  console.log(chalk.red(`etfm-scripts: ${name} execute fail`))
   process.exit(1)
 }

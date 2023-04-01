@@ -1,9 +1,10 @@
 import { Service } from './service'
-import { IPluginConfig, Plugin } from './plugin'
+import { Plugin } from './plugin'
 import { lodash } from '@etfm/shared'
 import { Command, ICommandOpts } from './command'
 import assert from 'assert'
 import { Hook, IHookOpts } from './hook'
+import { IPluginConfig } from './types'
 
 export class Api {
   public service: Service
@@ -44,7 +45,6 @@ export class Api {
         plugin.enable = plugin.enable || true
         plugin.apply = plugin.apply || (() => () => {})
 
-        console.log(plugin, '==========')
         return plugin
       } else {
         const plugin = p as string

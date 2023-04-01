@@ -1,5 +1,6 @@
 import assert from 'assert'
 import { Plugin } from './plugin'
+import { IHook } from './types'
 export interface IHookOpts {
   key: string
   fn: Function
@@ -8,7 +9,7 @@ export interface IHookOpts {
   plugin: Plugin
 }
 
-export class Hook {
+export class Hook implements IHook {
   public key: string
   public fn: Function
   public before?: string

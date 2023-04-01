@@ -31,7 +31,10 @@ export async function run() {
   }
 
   try {
-    await new Service().start(commandName, args)
+    await new Service().start({
+      commandName,
+      args,
+    })
   } catch (e: any) {
     log.verbose('etfm:run', e.toString())
     process.exit(1)

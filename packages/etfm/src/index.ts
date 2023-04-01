@@ -1,5 +1,5 @@
-export default function () {
-  console.log('etfm--------')
-}
+import { IServicePluginAPI, IPluginApi } from '@etfm/core'
 
-console.log('======')
+export * from './service'
+export { run } from './cli'
+export type IApi = IPluginApi & IServicePluginAPI

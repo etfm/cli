@@ -9,10 +9,12 @@ import inquirer from '../compiled/inquirer'
 import * as pkgUp from '../compiled/pkg-up'
 import pirates from '../compiled/pirates'
 import esbuild from '../compiled/esbuild'
-import tapable from '../compiled/tapable'
+import * as tapable from '../compiled/tapable'
 import joi from '../compiled/joi'
 import zod, { z } from '../compiled/zod'
 import semver from '../compiled/semver'
+import * as dotenv from '../compiled/dotenv'
+import * as dotenvExpand from '../compiled/dotenv-expand'
 
 import { isDebug } from './isDebug'
 import { log } from './log'
@@ -40,4 +42,6 @@ export {
   z,
   zod,
   semver,
+  dotenv,
+  dotenvExpand,
 }

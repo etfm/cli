@@ -1,7 +1,6 @@
 import { getSchemas } from './schema'
 
 export default (api: any) => {
-  console.log(api, '----------------------------------')
   const configDefaults: Record<string, any> = {}
 
   const extraSchemas = getSchemas()

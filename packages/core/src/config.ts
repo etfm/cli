@@ -6,6 +6,7 @@ import { DEFAULT_CONFIG_FILES, LOCAL_EXT, SHORT_ENV } from './constants'
 import { addExt } from './utils'
 import { NodeEnv } from '@etfm/types'
 import { ApplyHooksType, Service } from './service'
+import { IConfig } from './types'
 
 interface IConfigOpts {
   cwd: string
@@ -14,11 +15,12 @@ interface IConfigOpts {
   service: Service
 }
 
-export class Config {
+export class Config implements IConfig {
   public opts: IConfigOpts
   public mainConfigFilePath: string | null
   public filePaths: string[] = []
   public config: Record<string, any> = {}
+  public userConfig: Record<string, any> = {}
   public service: Service
   public configSchema: Record<string, any> = {}
   public defaultConfig: Record<string, any> = {}
@@ -29,13 +31,8 @@ export class Config {
     this.mainConfigFilePath = this.getMainConfigFilePath()
     // 获取所有配置文件路径
     this.filePaths = this.getConfigFilePaths()
-  }
-
-  getValidateConfig(opts: { schemas: any }) {
-    const config = this.getConfig()
-    this.validateConfig({ config, schemas: opts.schemas })
-    this.config = config
-    return config
+    // 用户配置的配置信息
+    this.userConfig = this.getConfig()
   }
 
   // 获取主要的配置文件路径，并进行验证
@@ -110,7 +107,6 @@ export class Config {
     const errors = new Map<string, Error>()
     const configKeys = new Set(Object.keys(opts.config))
 
-    console.log(configKeys, '====--------------00000', opts.schemas)
     for (const key of Object.keys(opts.schemas)) {
       configKeys.delete(key)
       if (!opts.config[key]) continue
@@ -145,34 +141,34 @@ ${Array.from(errors.keys()).map((key) => {
   }
 
   // 这个步骤插件已经初始化完成
-  async setAttrConfig() {
+  async getModifyConfig() {
     for (const plugin of Object.values(this.service.plugins)) {
       const { config: pluginConfig, key } = plugin
       if (pluginConfig.schema) this.configSchema[key] = pluginConfig.schema
-      if (pluginConfig.default !== undefined)
-        this.defaultConfig[key] = pluginConfig.default
-
-      const validateConfig = this.getValidateConfig({
-        schemas: this.configSchema,
-      })
-
-      const config = await this.service.applyHooks({
-        key: 'modifyConfig',
-        type: ApplyHooksType.modify,
-        initialValue: lodash.cloneDeep(validateConfig),
-        args: { paths: this.service.paths },
-      })
-      const defaultConfig = await this.service.applyHooks({
-        key: 'modifyDefaultConfig',
-        type: ApplyHooksType.modify,
-        initialValue: lodash.cloneDeep(this.defaultConfig),
-      })
-      this.config = lodash.merge(defaultConfig, config) as unknown as Record<
-        string,
-        any
-      >
-
-      return { config, defaultConfig }
+      if (pluginConfig.default) this.defaultConfig[key] = pluginConfig.default
     }
+
+    // 验证配置信息
+    this.validateConfig({ config: this.userConfig, schemas: this.configSchema })
+
+    // 验证通过获取修改后的config和defaultConfig
+    const config = await this.service.applyHooks({
+      key: 'modifyConfig',
+      type: ApplyHooksType.modify,
+      initialValue: lodash.cloneDeep(this.userConfig),
+      args: { paths: this.service.paths },
+    })
+
+    const defaultConfig = await this.service.applyHooks({
+      key: 'modifyDefaultConfig',
+      type: ApplyHooksType.modify,
+      initialValue: lodash.cloneDeep(this.defaultConfig),
+    })
+    this.config = lodash.merge(defaultConfig, config) as unknown as Record<
+      string,
+      any
+    >
+
+    return { config, defaultConfig }
   }
 }

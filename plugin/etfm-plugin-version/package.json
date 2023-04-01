@@ -32,5 +32,8 @@
   },
   "bugs": {
     "url": "https://github.com/etfm/cli/issues"
+  },
+  "dependencies": {
+    "etfm": "^0.0.0"
   }
 }

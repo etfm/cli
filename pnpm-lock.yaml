@@ -70,6 +70,7 @@ importers:
       '@etfm/types': ^0.0.0
     dependencies:
       '@etfm/core': link:../core
+      '@etfm/etfm-plugin-config': link:../../plugin/etfm-plugin-config
       '@etfm/etfm-plugin-version': link:../../plugin/etfm-plugin-version
       '@etfm/shared': link:../shared
       '@etfm/types': link:../types
@@ -90,7 +91,8 @@ importers:
       '@etfm/shared': link:../../packages/shared
 
   plugin/etfm-plugin-version:
-    specifiers: {}
+    specifiers:
+      etfm: ^0.0.0
 
   scripts:
     specifiers:

@@ -3,8 +3,8 @@ import { Plugin } from './plugin'
 
 export interface ICommandOpts {
   name: string
-  description: string
-  details: string
+  description?: string
+  details?: string
   fn: {
     ({ args }: { args: yParser.Arguments }): void
   }
@@ -13,8 +13,8 @@ export interface ICommandOpts {
 
 export class Command {
   public name: string
-  public description: string
-  public details: string
+  public description?: string
+  public details?: string
   public fn: {
     ({ args }: { args: yParser.Arguments }): void
   }

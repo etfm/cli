@@ -1,27 +1,10 @@
-import {
-  winPath,
-  pkgUp,
-  log,
-  lodash,
-  register,
-  esbuild,
-  joi,
-  z,
-  zod,
-} from '@etfm/shared'
+import { winPath, pkgUp, log, lodash, register, esbuild } from '@etfm/shared'
 import { existsSync } from 'fs'
 import { join, dirname, basename, extname } from 'path'
 import assert from 'assert'
+import { EnableType, IPlugin, IPluginConfig } from './types'
 
-export interface IPluginConfig {
-  default?: any
-  schema?: {
-    (joi: joi.Root & { zod: typeof z }): joi.Schema | zod.Schema
-  }
-  onChange?: string | Function
-}
-
-export class Plugin {
+export class Plugin implements IPlugin {
   public id: string
   public key: string
   public path: string
@@ -82,17 +65,13 @@ export class Plugin {
     }
   }
 
-  merge(opts: {
-    key?: string
-    config?: IPluginConfig
-    enable?: boolean | ((enableByOpts: { config: any }) => boolean)
-  }) {
+  merge(opts: { key?: string; config?: IPluginConfig; enable?: EnableType }) {
     if (opts.key) this.key = opts.key
     if (opts.config) this.config = opts.config
     if (opts.enable) this.enable = opts.enable
   }
 
-  getId(opts: { pkg: any; isPkgEntry: boolean }) {
+  private getId(opts: { pkg: any; isPkgEntry: boolean }) {
     let id
     if (opts.isPkgEntry) {
       id = opts.pkg.name
@@ -114,22 +93,19 @@ export class Plugin {
       .map((part) => lodash.camelCase(part))
       .join('.')
   }
+}
 
-  static getPlugins(param: {
-    cwd: string
-    plugins?: string[]
-    config: Record<string, any>
-  }) {
-    // 获取插件路径
-    const plugins = [
-      ...(param.plugins || []),
-      ...(param.config['plugins'] || []),
-    ]
-    return plugins.map((path) => {
-      return new Plugin({
-        path,
-        cwd: param.cwd,
-      })
+export function getPlugins(param: {
+  cwd: string
+  plugins?: string[]
+  config: Record<string, any>
+}) {
+  // 获取插件路径
+  const plugins = [...(param.plugins || []), ...(param.config['plugins'] || [])]
+  return plugins.map((path) => {
+    return new Plugin({
+      path,
+      cwd: param.cwd,
     })
-  }
+  })
 }
