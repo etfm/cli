@@ -20,6 +20,7 @@ export interface IServicePluginAPI {
 }
 
 export interface IPluginApi {
+  service: typeof Api.prototype.service
   describe: typeof Api.prototype.describe
   registerPlugins: (plugins: (IPlugin | string)[]) => void
   registerCommand: typeof Api.prototype.registerCommand

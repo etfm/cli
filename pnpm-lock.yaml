@@ -90,6 +90,11 @@ importers:
     dependencies:
       '@etfm/shared': link:../../packages/shared
 
+  plugin/etfm-plugin-help:
+    specifiers:
+      '@etfm/shared': ^0.0.0
+      etfm: ^0.0.0
+
   plugin/etfm-plugin-version:
     specifiers:
       etfm: ^0.0.0
