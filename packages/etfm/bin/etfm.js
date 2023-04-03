@@ -2,7 +2,6 @@
 
 require('../dist/cli')
   .run()
-  .then((e) => {
-    console.error(e)
+  .then(() => {
     process.exit(1)
   })

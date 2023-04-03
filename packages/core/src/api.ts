@@ -70,6 +70,7 @@ export class Api {
         !this.service.commands['name'],
         `api.registerCommand() failed, the command ${name} is exists.`
       )
+
       this.service.commands[name] = new Command({
         ...commandOpts,
         plugin: this.plugin,

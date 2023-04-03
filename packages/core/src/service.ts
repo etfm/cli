@@ -287,7 +287,10 @@ export class Service {
             cwd: this.cwd,
           })
       )
+
+      param.plugins.splice(0, 0, ...(ret.plugins ?? []))
     }
+
     return ret || {}
   }
 

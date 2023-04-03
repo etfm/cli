@@ -65,6 +65,7 @@ importers:
     specifiers:
       '@etfm/core': ^0.0.0
       '@etfm/etfm-plugin-config': ^0.0.0
+      '@etfm/etfm-plugin-preset': ^0.0.0
       '@etfm/etfm-plugin-version': ^0.0.0
       '@etfm/shared': ^0.0.0
       '@etfm/types': ^0.0.0
@@ -94,10 +95,21 @@ importers:
     specifiers:
       '@etfm/shared': ^0.0.0
       etfm: ^0.0.0
+    dependencies:
+      '@etfm/shared': link:../../packages/shared
+      etfm: link:../../packages/etfm
+
+  plugin/etfm-plugin-preset:
+    specifiers:
+      '@etfm/etfm-plugin-help': ^0.0.0
+      '@etfm/etfm-plugin-version': ^0.0.0
+      etfm: ^0.0.0
 
   plugin/etfm-plugin-version:
     specifiers:
       etfm: ^0.0.0
+    dependencies:
+      etfm: link:../../packages/etfm
 
   scripts:
     specifiers:

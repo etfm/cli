@@ -18,8 +18,7 @@ export class Service extends Core {
       defaultConfigFiles: DEFAULT_CONFIG_FILES,
       frameworkName: process.env.FRAMEWORK_NAME ?? FRAMEWORK_NAME,
       plugins: [
-        // require.resolve('@etfm/etfm-plugin-version'),
-        require.resolve('@etfm/etfm-plugin-config'),
+        require.resolve('@etfm/etfm-plugin-preset'),
         ...(opts?.plugins || []),
       ],
     })

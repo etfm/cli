@@ -33,5 +33,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   //这个设置在ctrl+s的时候，会启用默认的格式化，这里是prettier
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "testing.automaticallyOpenPeekView": "never"
 }

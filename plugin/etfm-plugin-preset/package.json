@@ -1,24 +1,22 @@
 {
-  "name": "etfm",
+  "name": "@etfm/etfm-plugin-preset",
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "lzdjack <1956252575@qq.com>",
   "homepage": "https://github.com/etfm/cli#readme",
   "license": "ISC",
-  "main": "dist/index.js",
-  "types": "index.d.ts",
-  "bin": {
-    "etfm": "bin/etfm.js"
-  },
+  "main": "dist/preset.js",
+  "types": "dist/preset.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
   },
   "files": [
-    "lib",
-    "dist",
-    "index.d.ts"
+    "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/etfm/cli.git"
@@ -27,8 +25,8 @@
     "bootstrap": "pnpm install",
     "dev": "etfm-scripts father dev",
     "build": "etfm-scripts father build",
-    "build:deps": "father prebundle",
-    "prepublishOnly": "father doctor && npm run build",
+    "build:deps": "etfm-scripts prebundle",
+    "prepublishOnly": "etfm-scripts doctor && npm run build",
     "clean": "rimraf node_modules",
     "reinstall": "pnpm clean && pnpm bootstrap"
   },
@@ -36,9 +34,8 @@
     "url": "https://github.com/etfm/cli/issues"
   },
   "dependencies": {
-    "@etfm/core": "^0.0.0",
-    "@etfm/etfm-plugin-preset": "^0.0.0",
-    "@etfm/shared": "^0.0.0",
-    "@etfm/types": "^0.0.0"
+    "@etfm/etfm-plugin-help": "^0.0.0",
+    "@etfm/etfm-plugin-version": "^0.0.0",
+    "etfm": "^0.0.0"
   }
 }
